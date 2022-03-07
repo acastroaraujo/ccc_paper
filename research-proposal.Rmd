@@ -29,7 +29,7 @@ The approach I want to take is very different to the usual "law and society" app
 
 [^1]: @tamanaha2009 argues that the distinction between "formalism" and "realism" is more a caricature than an actual description of how lawyers think about their own practice.
 
-The emphasis on internal dynamics is increasingly common in some parts of cultural sociology [see @kaufman2004], though perhaps the most famous example of such form of explanation is Kuhn's [-@kuhn2012] account of how the accumulation of anomalous findings drives scientific revolutions. With regards to legal reasoning, the closest example I could find that puts internal dynamics in the foreground is Arthur Stinchcombe's [-@stinchcombe2001] *When formality works: Authority and Abstraction in Law and Organizations.* Stinchcombe notes that sociologists have largely focused on "formal structures" that are either (1) pathological or (2) serve ritual purposes disconnected from the substance of what organizations do. But this perspective "does not have the guts of institutions in it" [@stinchcombe1997, pp. 17]; most people inside organizations are not all that cynical and---for the most part---judges are interested in having legal cases "handled right" (i.e., in conformity with professional norms). In other words, the people who serve as "the guts of institutions" actually believe in them and actively hold organizations account to their values.
+The emphasis on internal dynamics is increasingly common in some parts of cultural sociology [see @kaufman2004], though perhaps the most famous example of such form of explanation is Kuhn's [-@kuhn2012] account of how the accumulation of anomalous findings drives scientific revolutions. With regards to legal reasoning, the closest example I could find that puts internal dynamics in the foreground is Arthur Stinchcombe's [-@stinchcombe2001] *When formality works: Authority and Abstraction in Law and Organizations.* Stinchcombe notes that sociologists have largely focused on "formal structures" that are either (1) pathological or (2) serve ritual purposes disconnected from the substance of what organizations do. But this perspective "does not have the guts of institutions in it" [@stinchcombe1997, pp. 17]; most people inside organizations are not all that cynical and---for the most part---judges are interested in having legal cases "handled right" (i.e., in conformity with professional norms). In other words, the people who serve as "the guts of institutions" hold organizations accountable to their values.
 
 *The problem with viewing constitutional decision-making as a reflection of politics (or power) is that we then have difficulties condemning the increasing politicization of the judicial field.* If the boundary between law and politics is just a fraud---a well concocted lie---, then there's nothing extraordinary about having an increasing number of judges that make decisions on the basis of "external" interests. Sociologists of science have faced similar conundrums in the past with regards to climate change denial and the rise of conspiracy theorists [see @latour2004].
 
@@ -43,7 +43,9 @@ I align more with the weak version. It seems obvious that extra-legal interests 
 
 *Theoretical significance*
 
-I expect that my project will be of interest to sociologists who use network methods to study innovation in science and technology. This literature usually studies innovation in an environment that rewards novelty, but "legal innovation" takes place in an environment that discourages novelty. Legal reasoning is constrained by *precedent*. Thus, *innovation in the judicial field must masquerade as "conservatism" or "tradition".*
+I expect that my project will be of interest to sociologists who use network methods to study innovation in science and technology. This literature usually studies innovation in an environment that rewards novelty, but "legal innovation" takes place in an environment that discourages novelty[^2]. Legal reasoning is constrained by *precedent*. Thus, *innovation in the judicial field must masquerade as "conservatism" or "tradition".*
+
+[^2]: This is part of a larger call for researchers to "pay further attention to explaining, or at least accounting for, variance in cultural fields with respect to their institutionalized tolerance for (and tendency to promote or discourage) cultural innovation and change" [@kaufman2004, pp. 352]
 
 Ronald Dworkin [-@dworkin1986] describes this process through a metaphor that I believe is amenable to social network analysis: the *chain novel* as an endogenous mechanism of constraint.
 
@@ -51,15 +53,15 @@ Ronald Dworkin [-@dworkin1986] describes this process through a metaphor that I 
 >
 > @dworkin1986 [pp. 229]
 
-Another important difference between legal reasoning and scientific practice is that judges are not engaged in fact-based controversies[^2]. Rather, controversies arise over the interpretation and application of different abstract *principles* and constitutional *rights* with regards to "hard cases". Legal principles are the raw materials of legal reasoning[^3].
+Another important difference between legal reasoning and scientific practice is that judges are not engaged in fact-based controversies[^3]. Rather, controversies arise over the interpretation and application of different abstract *principles* and constitutional *rights* with regards to "hard cases". Legal principles are the raw materials of legal reasoning[^4].
 
-[^2]: Fact-based controversies are usually deferred to domain experts.
+[^3]: Fact-based controversies are usually deferred to domain experts.
 
-[^3]: "Hard cases" are those cases in which a judge's decision is not unambiguously dictated by precedent. These cases are usually decided by appeal to broad *principles* (as opposed to narrow *rules*) that are widely applicable and that might collide with each other under certain circumstances.
+[^4]: "Hard cases" are those cases in which a judge's decision is not unambiguously dictated by precedent. These cases are usually decided by appeal to broad *principles* (as opposed to narrow *rules*) that are widely applicable and that might collide with each other under certain circumstances.
 
-An example of this kind of principle-based argumentation can be applied to the general idea that precedents should be *binding,* itself known as the "principle of *stare decisis".* This principle is itself supported by the principles of *legal certainty* and (formal) *equality*---i.e., that law should be predictable in its enforcement, and that it should apply equally to all citizens. Thus, these three principles should co-occur regularly[^4].
+An example of this kind of principle-based argumentation can be applied to the general idea that precedents should be *binding,* itself known as the "principle of *stare decisis".* This principle is itself supported by the principles of *legal certainty* and (formal) *equality*---i.e., that law should be predictable in its enforcement, and that it should apply equally to all citizens. Thus, these three principles should co-occur regularly[^5].
 
-[^4]: The Colombian Constitutional Court makes this argument in several decisions (e.g., `SU-354-17`).
+[^5]: The Colombian Constitutional Court makes this argument in several decisions (e.g., `SU-354-17`).
 
 ```{r, echo=FALSE, out.width="40%", fig.align='center'}
 knitr::include_graphics("images/principle-triad.png")
@@ -87,11 +89,11 @@ Looking at these documents, I expect to see a few general patterns with regards 
 
 -   A decision will be innovative when judges cite a long-forgotten case and interpret it in a novel way. This is captured by Merton's [-@merton1968] concept of "adumbration" or the motivated search for old cases that allow for the hiding of novelty behind the veil of tradition.
 
--   Innovation will happen when a legal principle that's widely applicable in particular domain (e.g., free speech, tax policy, transitional justice) gets introduced to a different domain. This sort of transposition should happen more often when judges confront "hard cases".
+-   Innovation will happen when a legal principle that's widely applicable in a particular domain (e.g., free speech, tax policy, transitional justice) gets introduced to a different domain. This sort of transposition should happen more often when judges confront "hard cases".
 
     This is the familiar case of *repurposing*---i.e., "a new purpose for an old tool".
 
--   Innovation will happen when a *novel combination* of legal-principles is deployed as a legal argument that's useful for decision-making.
+-   Innovation will happen when a *novel combination* of legal principles is deployed as a legal argument that's useful for decision-making.
 
     This is the the case of "recombinant innovation" [e.g., @uzzi2013].
 
@@ -123,9 +125,9 @@ Each prefix carries a particular meaning:
 
 -   **`SU`**: refers to decisions in which the Court has decided to compile several `T` cases. They're a sort of legally binding "Annual Reviews" for the judicial system in Colombia.
 
-Together, these decisions form a complex citation network with nearly 600,000 edges[^5].
+Together, these decisions form a complex citation network with nearly 600,000 edges[^6].
 
-[^5]: If I manage to also extract the name of the actual judge making the decision for each of these 26,000 cases, I could also explore the question of whether some of them act as *individual innovators.*
+[^6]: If I manage to also extract the name of the actual judge making the decision for each of these 26,000 cases, I could also explore the question of whether some of them act as *individual innovators.*
 
 ## Previous research
 
@@ -135,9 +137,9 @@ Each of this ideas has an associated network imagery.
 
 -   The idea of **"obliteration by incorporation"** is associated with a network in which most citations are to recent cases (i.e., short-range connections, like knitting).
 
-    This idea is similar to the concept of **"black boxing"**, which refers to the process whereby previous research stops getting cited precisely because it has been elevated to "common sense" and is therefore taken for granted. In order for this to happen, previous research gets simplified and packaged in seemingly unproblematic ways---every messy detail is concealed [@latour1987]. As this process unfolds, consensus leads to no citation at all---e.g., nobody needs to cite the U.S. Surgeon General report of 1964 to support the claim that tobacco causes cancer [@shwed2010].
+    This idea is similar to the concept of **"black boxing"**, which refers to the process whereby previous research stops getting cited precisely because it has been elevated to "common sense" (i.e., it's taken for granted). In order for this to happen, previous research gets simplified and packaged in seemingly unproblematic ways---every messy detail is concealed [@latour1987]. As this process unfolds, consensus leads to no citation at all---e.g., nobody needs to cite the U.S. Surgeon General report of 1964 *anymore* to support the claim that tobacco causes cancer [@shwed2010].
 
--   The idea of **"adumbration"** is associated with the motivated search for arguments in old cases, in deference to tradition (i.e., long-range connections, more like a small-world type network).
+-   The idea of **"adumbration"** is associated with the motivated search for arguments in old cases, in deference to tradition (i.e., long-range connections, more like a small-world type of network).
 
     @merton1968 complains about how *adumbrationists---*more common in the humanities---have a particular strong bias towards finding strong resemblances were they don't exist. But this is actually a feature of constitutional decision-making, which has an institutional deference towards precedent.
 
@@ -161,36 +163,36 @@ Each of this ideas has an associated network imagery.
 
 -   The basic idea of **recombinant innovation** is that "new" ideas are not usually "out there" waiting to be discovered, but that they are usually created by reconfiguring existing resources in different ways. Research on scientific practice has focused on the the novel juxtaposition of scientific ideas as a source of innovation [@foster2015; @leahey2014; @uzzi2013].
 
-    The idea of recombinant innovation resonates with different understandings of creativity. For example, @godart2020 [pp. 494] define creativity as "an intentional configuration of cultural and material elements that is unexpected for a given audience"[^6]. For my purposes, an innovative legal argument is understood as "configuration of cultural elements" that provide "aha!" moments to judges attempting to make decisions.
+    The idea of recombinant innovation resonates with different understandings of creativity. For example, @godart2020 [pp. 494] define creativity as "an intentional configuration of cultural and material elements that is unexpected for a given audience"[^7]. For my purposes, an innovative legal argument is understood as "configuration of cultural elements" that provide "aha!" moments to judges attempting to make decisions.
 
     @uzzi2013 look at the references contained in each document and use statistical methods to assign a *z-score* to each pairing. If a document cites 20 previous documents, then it has ${20 \choose 2} = 190$ pairings (and z-scores). Some of these pairings may be conventional and some may be unexpected (or novel).
 
-    This literature has taken the *cumulative citation count* as an indicator of innovation because presumably it captures "the extent to which the work was useful to---and valued by---other scholars" [@leahey2014, pp. 347]. Following this line of reasoning, research in the sociology of science typically focuses on the *tension* between "tradition" and "innovation" [e.g., @foster2015]. The idea is that there's some optimal combination of novel and conventional pairings; "novelty and conventionality are not opposing factors in the production of science; rather, papers with an injection of novelty into an otherwise exceptionally familiar mass of prior work are unusually likely to have high impact" [@uzzi2013, pp. 470][^7].
+    This literature has taken the *cumulative citation count* as an indicator of innovation because presumably it captures "the extent to which the work was useful to---and valued by---other scholars" [@leahey2014, pp. 347]. Following this line of reasoning, research in the sociology of science typically focuses on the *tension* between "tradition" and "innovation" [e.g., @foster2015]. The idea is that there's some optimal combination of novel and conventional pairings; "novelty and conventionality are not opposing factors in the production of science; rather, papers with an injection of novelty into an otherwise exceptionally familiar mass of prior work are unusually likely to have high impact" [@uzzi2013, pp. 470][^8].
 
     Note that @uzzi2013 don't actually focus on pairings of articles, but on pairings of *journals.* Similarly, @leahey2014 focus on pairings of *keywords.* I think it makes more sense for this project to focus on pairings of *domains*---as defined through some form of clustering of texts (e.g., using topic models)---and pairings of *principles.*
 
-[^6]: The main difference between "creativity" and "legal innovation" is that later is associated with a more cumulative process that signals some form of improvement in how things are done. This distinction is taken from @godart2020.
+[^7]: The main difference between "creativity" and "legal innovation" is that later is associated with a more cumulative process that signals some form of improvement in how things are done. This distinction is taken from @godart2020.
 
-[^7]: This focus on optimality is similar to how some researchers think about the *tradeoff* between "exploitation" and "exploration" in the organizational learning literature [@march1991]. I'm still unsure about how to adapt these ideas to constitutional decision-making because the CCC is not embedded in a competitive setting. Rather, it's embedded in a "strong institutional environment" in which an organization will typically get rewarded when it conforms to certain rules and requirements [@scott1991].
+[^8]: This focus on optimality is similar to how some researchers think about the *tradeoff* between "exploitation" and "exploration" in the organizational learning literature [@march1991]. I'm still unsure about how to adapt these ideas to constitutional decision-making because the CCC is not embedded in a competitive setting. Rather, it's embedded in a "strong institutional environment" in which an organization will typically get rewarded when it conforms to certain rules and requirements [@scott1991].
 
 Finally, it's worth noting two relevant concepts that, unlike the previous ones, are not usually associated with network imagery.
 
--   ***Professional work***
+***Professional work***
 
-    @abbott1988 uses the expression "professional work" to describe how professionals use their expert knowledge to deal with particular problems, as part of a broader competition to lay claim over particular sets of tasks. Thus, professional knowledge is "successful" to the extent that it can classify a problem (*diagnostic*), reason about it (*inference*), and/or take action on it (*treatment*).
+@abbott1988 uses the expression "professional work" to describe how professionals use their expert knowledge to deal with particular problems, as part of a broader competition to lay claim over particular sets of tasks. Thus, professional knowledge is "successful" to the extent that it can classify a problem (*diagnostic*), reason about it (*inference*), and/or take action on it (*treatment*).
 
-    The relevant dimension here is classification. Judges take a problem and filter out all kinds of "irrelevant" information in order to form an image that can later be embedded in a classification system. More importantly, this classification system tends to be highly complex; if it wasn't, there would be no need to involve the experts.
+The relevant dimension here is classification. Judges take a problem and filter out all kinds of "irrelevant" information in order to form an image that can later be embedded in a classification system. More importantly, this classification system tends to be highly complex; if it wasn't, there would be no need to involve the experts.
 
-    What's particular to constitutional decision-making is that it functions as a "moving classification system", it has the potential of changing with every new decision.
+What's particular to constitutional decision-making is that it functions as a "moving classification system", it has the potential of changing with every new decision.
 
--   ***Organizational memory***
+***Organizational memory***
 
-    I'm thinking about the CCC as an organization that "learns". However, a lot of the literature on organizational learning doesn't seem particularly relevant. It usually focuses on organizations that learn by monitoring some sort of "performance" metric (or target) in a competitive setting. But the CCC has no such thing as a "target", and it isn't embedded in a competitive setting either
+I'm thinking about the CCC as an organization that "learns". However, a lot of the literature on organizational learning doesn't seem particularly relevant. It usually focuses on organizations that learn by monitoring some sort of "performance" metric (or target) in a competitive setting. But the CCC has no such thing as a "target", and it isn't embedded in a competitive setting either
 
-    The part of the literature that focuses on *organizational memory* [@levitt1988, pp. 319]*,* however, seems highly relevant: how do organizations encode, store, and retrieve the lessons of history despite personnel turnover and the passage of time? The answer to these questions should shed light on the co-citation networks I'm planning to look at. For example, I'm fairly certain that one of the biggest contributors to change in this citation network is the creation of the same digital search engine I used to scrape all of these documents.
+The part of the literature that focuses on *organizational memory* [@levitt1988, pp. 319]*,* however, seems highly relevant: how do organizations encode, store, and retrieve the lessons of history despite personnel turnover and the passage of time? The answer to these questions should shed light on the co-citation networks I'm planning to look at. For example, I'm fairly certain that one of the biggest contributors to change in this citation network is the creation of the same digital search engine I used to scrape all of these documents. On a related point, it seems that the CCC started citing extensive passages of previous decisions when *copy-pasting* became available.
 
-    The CCC is more akin to an organization that's trying to preserve its "organizational memory" and less akin to the decentralized network of research universities that make up the bulk of scientific publications. In this sense, the erasure of past decisions (decisions that are forgotten) is more the result of the cognitive and organizational difficulties of trying to remember every possible decision ever made. This is why one ofmy strongest claims is that "innovation" in constitutional decision-making is related to the novel interpretation of long-forgotten precedents.
+The CCC is more akin to an organization that's trying to preserve its "organizational memory" and less to the decentralized network of professionals in research universities that make up the bulk of scientific publications. In this sense, the erasure of past decisions (decisions that are forgotten) is more the result of the cognitive and organizational difficulties of trying to remember every possible decision ever made. This is why one of my strongest claims is that "innovation" in constitutional decision-making is related to the novel interpretation of long-forgotten precedents.
 
-    An important aspect of this citation network---which we can consider a network *of* culture---is that a lot of it goes unused, similarly to how @martin2010 describes "culture" as a junkyard. An alternative metaphor to Dworkin's *chain novel* might very well come from the old reality TV show *Junkyard Wars*, in which every week a team of engineers must assemble a working machine out of the materials available in a junkyard. Similarly, judges---*and their clerks*---assemble arguments from available precedents. I believe this is the process that drives---to borrow even more metaphors---the birth, life-expectancy, death, and even "resurrection" of precedents.
+An important aspect of this citation network---which we can consider a network *of* culture---is that a lot of it goes unused, similarly to how @martin2010 describes "culture" as a junkyard. An alternative metaphor to Dworkin's *chain novel* might very well come from the old reality TV show *Junkyard Wars*, in which every week a team of engineers must assemble a working machine out of the materials available in a junkyard. Similarly, judges---*and their clerks*---assemble arguments from available precedents. I believe this is the process that drives---to borrow even more metaphors---the birth, life-expectancy, death, and even "resurrection" of precedents.
 
 ## References

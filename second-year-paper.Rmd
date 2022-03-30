@@ -2,13 +2,14 @@
 title: "Innovation in Constitutional Decision-Making"
 author: "Andrés Castro Araújo"
 output:
-  html_document:
-    toc: yes
-    toc_float: yes
+  bookdown::html_document2: 
+    toc: true
+    toc_float: true
+    number_sections: false
 bibliography: references.bib
 csl: american-sociological-association.csl
 subtitle: Second-Year Paper Draft
-abstract: Here is a short abstract
+abstract: "Most studies of innovation focus on environments that encourage novelty (i.e., science and technology). This paper focuses on innovation in constitutional decision-making, which presents a paradox since this environment actively discourages any form of innovation because of what some scholars call the \"gravitational force of precedent.\" I define an innovative legal argument as any configuration of cultural elements that's useful for judges attempting to solve \"hard cases.\". I then proceed to understand the impact that principle-based argumentation has on future citations."
 editor_options:
   chunk_output_type: inline
 ---
@@ -22,19 +23,18 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE,
   cache = TRUE,
-  out.width = "80%"
+  out.width = "100%"
 )
 
-# options(tinytex.verbose = TRUE)
-
-## Packages
 library(tidyverse)
-library(igraph)
-library(ggraph)
-library(backbone)
-library(stm)
-library(loo)
-library(patchwork)
+
+theme_custom <- function() {
+    theme_light(base_family = "Amiri") + theme(
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(colour = "white"), 
+    strip.background = element_rect(fill = "#4C4C4C")
+  )
+}
 
 theme_set(
   theme_light(base_family = "Amiri") + theme(
@@ -43,6 +43,8 @@ theme_set(
     strip.background = element_rect(fill = "#4C4C4C")
   )
 )
+
+# options(tinytex.verbose = TRUE)
 
 ## TO DO:
 ## MAKE PRINCIPLES BETTER (SYNONYMS + REGEX FOR BOUNDED WORDS) [check]
@@ -70,336 +72,18 @@ body {
   width: 90%;
   margin: auto;
 }
-```
 
-```{r}
-get_data <- function(x) {
-  stopifnot(x %in% c("citations", "descriptors", "metadata"))
-  path <- "~/Documents/Repositories/ccc_datos/data/"
-  readr::read_rds(stringr::str_glue("{path}{x}.rds"))
+.todolist {
+  padding: 1em 1em 1em 0em;
+  margin-bottom: 10px;
+  border: 2px solid orange;
+  border-radius: 10px;
+  background: #f5f5f5 5px center/3em no-repeat;
 }
-
-el <- get_data("citations")
-
-metadata <- get_data("metadata") |> 
-  select(id, type, year, date)
-
-# Clean up
-
-metadata <- metadata |> 
-  filter(!id %in% c("T-680-07", "T-277-09"))
-
-el <- el |> 
-  filter(from %in% metadata$id, to %in% metadata$id) |> 
-  filter(from_date > to_date) |>       ## remove time travel (this can happen in a few cases)
-  distinct(from, to, .keep_all = TRUE) ## remove multiple citations per case
-
-dag <- igraph::graph_from_data_frame(
-  d = el, 
-  directed = TRUE,
-  vertices = metadata
-)
-
-metadata <- metadata |> 
-  left_join(
-    igraph::degree(dag, mode = "in") |> 
-      tibble::enframe("id", "indegree")
-  ) |> 
-  left_join(
-    igraph::degree(dag, mode = "out") |> 
-      tibble::enframe("id", "outdegree")
-  ) 
-
-cd_index <- read_rds(here::here("analysis", "out", "cd_index.rds"))
-atypicality <- read_rds(here::here("analysis", "out", "atypicality.rds"))
-
-adumbration <- read_rds(here::here("analysis", "out", "adumbration.rds"))
-adumbration_counts <- read_rds(here::here("analysis", "out", "adumbration_counts.rds"))
-
-transposition <- read_rds(here::here("analysis", "out", "transposition.rds"))
-
-metadata <- metadata |> 
-  left_join(atypicality) |> 
-  left_join(adumbration_counts |> select(!threshold))
-
-metadata <- metadata |> 
-  mutate(across(c(adum_count, adum_max), \(x) ifelse(is.na(x), 0, x)))
-
-metadata <- metadata |> 
-  left_join(transposition)
-
-metadata <- metadata |> 
-  mutate(days_of_exposure = as.integer(max(date) - date))
-
-mod8_coeffplot <- read_rds(here::here("analysis", "out", "mod8_coeffplot.rds"))
-loo_out <- read_rds(here::here("analysis", "out", "loo_out.rds"))
-mod8_ppc_plots <- read_rds(here::here("analysis", "out", "mod8_ppc_plots.rds"))
-
-corr_out <- read_rds(here::here("analysis", "out", "corr_tm.rds"))
-
-## recombination
-
-bb <- read_rds(here::here("analysis", "out", "bb_sdsm_principles.rds"))
-
-ALPHA <- 0.0001
-bb_net <- backbone.extract(bb, alpha = ALPHA, class = "igraph", signed = TRUE)
-bb_net_positive <- delete_edges(bb_net, which(E(bb_net)$sign == -1)) 
-#bb_net_positive <- delete_vertices(bb_net_positive, which(degree(bb_net_positive) == 0))
-igraph::V(bb_net_positive)$degree <- igraph::degree(bb_net_positive)
-igraph::V(bb_net_positive)$b <- igraph::betweenness(bb_net_positive, directed = FALSE)
-
-igraph::V(bb_net_positive)$cluster <- igraph::cluster_louvain(bb_net_positive) |> 
-  igraph::membership() |> 
-  factor()
-
-principles_target <- c(
-  "principio de laicidad", "principio de pluralismo religioso",
-  #"principio de certeza tributaria", "principio de irretroactividad tributaria",
-  #"principio unitario del estado","principio de autonomia territorial",
-  #"principio de unidad de materia", "principio de publicidad",
-  "principio de inmediatez", "principio de subsidiariedad",
-  "principio pro infans", "principio de corresponsabilidad"
-)
-
-V(bb_net)$cluster <- V(bb_net_positive)$cluster
-V(bb_net)$degree <- V(bb_net_positive)$degree
-V(bb_net)$b <- V(bb_net_positive)$b
-
-pp_mat <- read_rds(here::here("analysis", "out", "principles_mat.rds"))
-case_principles_keep <- names(pp_mat["C-370-06", ][which(pp_mat["C-370-06", ] > 0)])
-
-## transposition 
-
-stm_corr <- cor(corr_out$theta) ## topic correlations
-colnames(stm_corr) <- rownames(stm_corr) <- 1:nrow(stm_corr)
-
-stm_net <- igraph::graph_from_adjacency_matrix(
-  adjmatrix = stm_corr, 
-  weighted = TRUE, 
-  mode = "undirected", 
-  diag = FALSE
-)
-
-stm_el <- igraph::as_data_frame(stm_net) |> 
-  rename(corr = weight) ## corelation edge list
-
-corr_net <- stminsights::get_network(corr_out, cutoff = 0.15, labels = 1:ncol(corr_out$theta)) 
-V(corr_net)$d <- colSums(corr_out$theta)
-#corr_net <- delete.vertices(corr_net, which(degree(corr_net) == 0))
-V(corr_net)$strength <- strength(corr_net)
-V(corr_net)$degree <- degree(corr_net)
-V(corr_net)$betweenness <- betweenness(corr_net)
-
-igraph::V(corr_net)$cluster <- igraph::cluster_louvain(corr_net) |> 
-  igraph::membership() |> 
-  as.character()
-
-ccc_sparse <- read_rds(here::here("analysis", "out", "sparse_dtm.rds"))
-
-row_remove <- which(!rownames(ccc_sparse) %in% metadata$id)
-ccc_sparse <- ccc_sparse[-row_remove, ]
-rownames(corr_out$theta) <- rownames(ccc_sparse)
-
-index <- which(rownames(corr_out$theta) == "T-859-03")
-
-x <- corr_out$theta[index, , drop = FALSE]
-colnames(x) <- seq_along(x)
-ego <- t(x) %*% x
-  
-ego_el <- igraph::graph_from_adjacency_matrix(
-  adjmatrix = ego, 
-  mode = "undirected", weighted = TRUE, diag = FALSE
-) |> 
-igraph::as_data_frame() |> 
-mutate(across(c(to, from), as.character))
-  
-case_transposition <- full_join(ego_el, stm_el) |> 
-  mutate(score = weight*corr) |> 
-  filter(
-    score < quantile(score, probs = 0.001) | score > quantile(score, probs = 0.999)
-  ) 
 ```
 
 ```{r}
-avg_per_year_df <- metadata |> 
-  count(year, type) |> 
-  group_by(type) |> 
-  summarize(avg = mean(n)) |> 
-  mutate(offset = case_when(
-    type == "C" ~ 15,
-    type == "SU" ~ 1.5,
-    type == "T" ~ 50
-  )) 
-
-avg_per_year_df$x <- c(2019, 2008, 2019)
-
-## plots
-figure1 <- metadata |> 
-  count(year, type) |>
-  group_by(type) |> 
-  mutate(avg = mean(n)) |> 
-  ggplot(aes(year, n)) +
-  geom_col(width = 3/4, position = "dodge") +
-  geom_text(
-    data = avg_per_year_df,
-    mapping = aes(x = x, y = avg + offset, label = scales::comma(avg, 0.1)),
-    size = 4
-    ) +
-  geom_hline(
-    data = avg_per_year_df,
-    mapping = aes(yintercept = avg), 
-    linetype = "dashed"
-  ) + 
-  facet_wrap(~type, nrow = 1, scales = "free_y") +
-  labs(x = NULL, y = NULL, title = "Number of decisions per year",
-       subtitle = "1992-2021",
-       caption = "dashed lines indicate average decisions per year")
-
-figure2 <- metadata |> 
-  pivot_longer(c(indegree, outdegree), names_to = "dtype", values_to = "degree") |> 
-  mutate(dtype = case_when(
-    dtype == "indegree" ~ "Average Inward Citations (in-degree)",
-    dtype == "outdegree" ~ "Average Outward Citations (out-degree)"
-  )) |> 
-  ggplot(aes(year, degree)) + 
-  stat_summary(
-    fun.data = mean_cl_boot, fatten = 1, 
-    fun.args = list(conf.int = 0.9)
-  ) + 
-  facet_grid(type~dtype, scales = "free_y") + 
-  scale_x_continuous(labels = seq(1992, 2022, 4), breaks = seq(1992, 2022, 4)) +
-  labs(y = NULL, x = NULL) +
-  theme(strip.text.y = element_text(angle = 0))
-
-figure3 <- tidyr::crossing(
-  x = seq(0, 5, 1),
-  year = seq(1992, 2021)
-) |> 
-  mutate(prop = map2_dbl(x, year, function(x, y) {
-    mean(metadata$indegree[which(metadata$year == y)] <= x)
-  })) |> 
-  filter(x %in% c(0)) |> 
-  ggplot(aes(year, prop)) + 
-  geom_col() + 
-  geom_text(aes(label = scales::percent(prop, 1)), size = 2, nudge_y = 0.025) +
-  scale_x_continuous(labels = seq(1992, 2021, 2), breaks = seq(1992, 2021, 2)) +
-  theme(axis.text.y = element_blank()) +
-  labs(
-    x = NULL, y = NULL,
-    title = "Proportion of cases that have never been cited",
-    subtitle = paste0("As of ", max(metadata$date))
-  )
-
-figure4 <- adumbration |>
-  filter(target %in% c("C-776-03", "C-1052-01", "T-025-04")) |> 
-  group_by(target) |> 
-  mutate(r_label = ifelse(rank(-days) <= 1, reference, NA_character_)) |> 
-  ggplot(aes(date, days)) + 
-  geom_point(aes(color = target), show.legend = FALSE) + 
-  ggrepel::geom_text_repel(aes(label = r_label), size = 3, direction = "x", family = "Amiri") +
-  facet_wrap(~target) + 
-  labs(
-    title = "Adumbration in Three Cases",
-    subtitle = "Days since references in each case were last cited by other cases",
-    x = NULL
-  )
-
-set.seed(123); bb_layout <- delete_vertices(
-  graph = bb_net_positive, 
-  v = which(degree(bb_net_positive) == 0)
-  ) |> 
-  #tidygraph::as_tbl_graph() |> 
-  create_layout("fr")
-
-figure5 <- bb_layout |> 
-  ggraph() +
-  geom_edge_fan(alpha = 2/3) +
-  geom_node_point(
-    mapping = aes(size = degree, fill = factor(cluster)), 
-    color = "white", shape = 21, show.legend = FALSE
-  ) + 
-  geom_node_label(
-    mapping = aes(label = str_wrap(name, 15), fill = factor(cluster), 
-                  filter = name %in% principles_target), 
-    size = 2, repel = TRUE, show.legend = FALSE, family = "Amiri"
-  ) +
-  labs(
-    title = "Full Two-Mode Projection of Legal Principles", 
-    subtitle = latex2exp::TeX(r"(Backbone algorithm: Stochastic Degree Sequence Model ($\alpha =$0.0001))"),
-    caption = "Layout algorithm: Fruchterman-Reingold")
-
-
-figure6 <- delete_vertices(
-  graph = bb_net, 
-  v = which(!V(bb_net)$name %in% case_principles_keep)
-  ) |> 
-  ggraph("graphopt")  + 
-  geom_edge_fan(color = "#999999", width = 1, show.legend = FALSE) +
-  geom_node_point(
-    mapping = aes(fill = factor(cluster)), 
-    color = "white", shape = 21, show.legend = FALSE, size = 8
-  ) +
-  geom_node_text(aes(label = str_wrap(name, 15)), size = 1.5) +
-  labs(title = "Decision C-370-06", subtitle = "An example of principle recombination") +
-  facet_edges(~ fct_rev(factor(ifelse(sign == 1, "Typical Ties", "Atypical Ties")))) 
-
-figure7 <- stm_el |> 
-  ggplot(aes(corr)) + 
-  geom_histogram(color = "white") + 
-  geom_rug(alpha = 1/2) + 
-  labs(title = "Pairwise topic correlations", 
-       subtitle = paste0(scales::comma(choose(nrow(stm_corr),2)), "coefficients"),
-       x = latex2exp::TeX(r"($\rho_{ij}$)"))
-
-set.seed(1234); corr_layout <- create_layout(corr_net, "fr")
-
-figure8 <- corr_layout |> 
-  ggraph() + 
-  geom_edge_fan(aes(alpha = weight), show.legend = FALSE) +
-  geom_node_point(
-    mapping = aes(size = d, fill = cluster), 
-    color = "white", shape = 21, show.legend = FALSE
-  ) +
-  geom_node_text(
-    mapping = aes(label = name), 
-    size = 3, show.legend = FALSE, family = "Amiri"
-  ) +
-  labs(title = "Positive Topic Correlations", subtitle = "Cutoff = 0.15",
-       caption = "Layout algorithm: Fruchterman-Reingold")
-
-figure9 <- case_transposition |> 
-  rename(membership = weight, weight = score) |> 
-  mutate(edge_type = case_when(
-    sign(weight) == 1 ~ "Familiar Ties",
-    sign(weight) == -1 ~ "Unfamiliar Ties"
-  )) |>
-  mutate(edge_type = fct_rev(edge_type)) |> 
-  igraph::graph_from_data_frame(directed = FALSE) |> 
-  tidygraph::as_tbl_graph() |> 
-  ggraph("graphopt") + 
-  geom_edge_link(
-  mapping = aes(color = edge_type, label = round(weight * 100, 2), 
-                  width = abs(weight)), 
-  show.legend = FALSE, family = "Amiri", label_dodge = unit(20, 'mm')) +
-  geom_node_point(size = 10, shape = 21, fill = "white") +
-  geom_node_text(aes(label = name)) +
-  facet_edges(~edge_type) +
-  labs(
-    caption = "Note: all edge weights have been multiplied by 100",
-    subtitle = "An example of topic transposition",
-    title = "Decision T-859-03"
-  ) +
-  scale_edge_color_manual(values = c("steelblue1", "tomato"))
-
-appendix1 <- metadata |> 
-  inner_join(cd_index) |> 
-  ggplot(aes(type, cd5)) + 
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_jitter(alpha = 1/2, width = 1/4, size = 1/3) + 
-  stat_summary(fun.data = mean_cl_boot, fun.args = list(conf.int = 0.9), 
-               color = "red", fatten = 1) +
-  labs(title = latex2exp::TeX(r"{$CD_5$ Index}"), x = NULL, y = NULL) +
-  coord_cartesian(ylim = c(-1, 1))
+source("second-year-paper-data-plots.R")
 ```
 
 ```{r, eval=FALSE}
@@ -408,19 +92,15 @@ source("viz_cemetary.R")
 
 ## Introduction
 
-<font size="2.5">
+::: {#intro-notes .todolist}
+-   This section will need to be reformatted for the final paper -- e.g., with longer paragraphs, more citations for your assertions, and less informality.
 
-***This section will need to be reformatted for the final paper -- e.g., with longer paragraphs, more citations for your assertions, and less informality.***
+-   Be more specific about methods.
 
-</font>
+-   Tie the "principle" and "domain" arguments as instances of what @pachucki2010 call "cultural holes" or "patterned absences of relationships".
+:::
 
 This paper attempts to understand creativity and innovation in an environment that actively *discourages* novelty: constitutional decision-making in higher courts. More specifically, I use a variety of methods to look at the network of citations embedded in all decisions made by the Colombian Constitutional Court (CCC) for the `r paste(range(metadata$year), collapse = "-")` period.
-
-<font size="2.5">
-
-***Be more specific about methods.***
-
-</font>
 
 Sociologists typically use network methods to study innovation in science and technology. But this literature usually studies innovation in an environment that rewards novelty. Legal reasoning, on the other hand, is constrained by *precedent*. Judges must show deference to decisions and styles of reasoning made in the past. In other words, *innovation in the judicial field must masquerade as "conservatism" or "tradition".*
 
@@ -433,12 +113,6 @@ Thus, this part of a larger call for researchers to "pay further attention to ex
 -   Adumbration---or the motivated search for long-forgotten cases which can then be reinterpreted in novel ways. This allows for judges to hide their creative work behind the veil of tradition.
 -   Principle recombination---or the novel combination of legal principles used in the construction of arguments.
 -   Topic transposition---or taking a legal argument that's widely applicable in a particular domain (e.g., tax policy) and then introducing it into a different domain (e.g., healthcare). This is the familiar case of *repurposing*---i.e., "a new purpose for an old tool".
-
-<font size="2.5">
-
-***Tie the "principle" and "domain" arguments as instances of what @pachucki2010 call "cultural holes" or "patterned absences of relationships".***
-
-</font>
 
 The approach I take is very different to the usual "law and society" approach [@calavita2016], which prioritizes the law's entanglement with different forms of inequality (e.g., class, gender, race). These scholars tend to see the law as a reflection (or rationalization) of broader power dynamics. The difference in approach is reminiscent of the opposition between "legal formalism" and "legal realism", which deals with the thorny question of whether law can be differentiated from politics. Formalists emphasize internal dynamics, whereas realists emphasize exogenous dynamics (e.g., electoral politics, public opinion, economics, social movements)[^2].
 
@@ -458,11 +132,13 @@ Finally, I only examine the effects of constitutional decision-making on the CCC
 
 ## Theory
 
-<font size="2.5">
+::: {#theory .todolist}
+-   Draw attention to the extensive work that sociologists have done on innovation and citation networks. Then make the argument that the evolution of law (and legal precedent) is different from what we've seen in domains such as academic citation, patent networks, interpersonal citation (e.g., studies of status), etc.
 
-**...draw attention to the extensive work that sociologists have done on innovation and citation networks.  Then make the argument that the evolution of law (and legal precedent) is different from what we've seen in domains such as academic citation, patent networks, interpersonal citation (e.g., studies of status), etc.**
+-   Martin: I like the description of mechanisms here, but they are a bit brief and too short to stand as sections on their own. It might be useful for you to illustrate the operation of each mechanism through a hypothetical citation network graph.
 
-</font>
+    *Add a hypothetical citation graph for each of these three examples?*
+:::
 
 ### Innovation in Science and Technology
 
@@ -478,13 +154,9 @@ This type of network might be generated through "knowledge encapsulation" [see @
 
 For this to happen, previous research gets simplified and packaged in seemingly unproblematic ways---every messy detail is concealed [@latour1987]. As this process unfolds, consensus leads to lack of citations after a certain time---e.g., nobody needs to cite the U.S. Surgeon General report of 1964 *anymore* to support the claim that tobacco causes cancer [@shwed2010].
 
-**add picture of hypothetical citation graph**
-
 *A network of citations filled with long-range connections (i.e., a small-world type of network).*
 
 This type of network might be generated through what @merton1968 calls "adumbration" or deference to *tradition.* @merton1968 complains about how *adumbrationists---*more common in the humanities---have a particular strong bias towards finding strong resemblances where they don't exist. But this is actually a feature of constitutional decision-making, which has an institutional deference towards precedent.
-
-**add picture of hypothetical citation graph**
 
 Similarly, @hargens2000 notes that a disprortionate citation of "old" foundational documents occurs when authors cite papers as examples of *perspectives* or *general approaches* rather than as support for specific points---e.g., citing Karl Marx to make the general point that exploitation matters.
 
@@ -494,15 +166,7 @@ This type of network arises through the mechanism of "creative disruption" [@mcm
 
 @funk2017 developed an index that can be used to measure whether a new node *disrupts* the way other nodes are being cited (i.e., a break with the past) or whether it *consolidates* them (i.e., increases the coherence of some domain). The intuition is that a disruptive node will decrease the citations of predecessors because this new node (e.g., a technology, an idea, a decision) indicates a break with past ways of thinking; in contrast, a consolidating node should be cited together with their predecessors.
 
-**add picture of hypothetical citation graph**
-
 @funk2017 are interested in measuring change at a level of granularity that's intermediate between "paradigm shifts" and "knowledge encapsulation". Their index is aimed at capturing "degrees of consolidation and destabilization ranging from large-scale transformations to smaller-scale, incremental shifts" [@funk2017, pp. 793]. Unfortunately, their proposed index assumes that a new node is *either* disruptive *or* consolidating to a certain degree. They don't consider the possibility that a new node exhibits *both* effects for different subsets of future nodes [@funk2017, pp. 813]. The fact of the matter is that the potential "disruptiveness" of a decision is subject to interpretation. The Figure attached in the appendix shows the disruption index proposed by @funk2017 for the decisions in this dataset and shows that these decisions are almost never quite disruptive, but they're not very consolidating either.
-
-<font size="2.5">
-
-**I like the description of mechanisms here, but they are a bit brief and too short to stand as sections on their own. It might be useful for you to illustrate the operation of each mechanism through a hypothetical citation network graph.**
-
-</font>
 
 Finally, a subset of this literature focuses on the concept of *recombinant innovation.* The argument is that "new" ideas are not usually "out there" waiting to be discovered, but that they are usually created by reconfiguring existing resources in different ways. Research on scientific practice has focused on the the novel juxtaposition of scientific ideas as a source of innovation [@leahey2014; @uzzi2013]. Following this line of reasoning, research in the sociology of science typically focuses on the *tension* between "tradition" and "innovation" [e.g., @foster2015]. The idea is that there's some optimal combination of novel and conventional pairings; "novelty and conventionality are not opposing factors in the production of science; rather, papers with an injection of novelty into an otherwise exceptionally familiar mass of prior work are unusually likely to have high impact" [@uzzi2013, pp. 470].
 
@@ -522,7 +186,9 @@ An example of the kind of principle-based argumentation described by Dworkin can
 
 Thus, these three principles should co-occur regularly:
 
-```{r, out.width="40%"}
+Figure \@ref(fig:triad-p)
+
+```{r triad-p, out.width="40%", fig.cap="Description"}
 knitr::include_graphics("images/principle-triad.png")
 ```
 
@@ -534,7 +200,7 @@ However, the existence of these abstract principles does mean that judges do not
 
 ## Data
 
-I collected a corpus of over `r scales::comma(nrow(metadata))` decisions made by the Colombian Constitutional Court (CCC) for the 1992-2021 period. The documents are unstructured pieces of text, but they are sufficiently standardized so that it's relatively straightforward to extract citations to past cases.
+I collected a corpus of over `r scales::comma(nrow(metadata))` decisions made by the Colombian Constitutional Court (CCC) during the 1992-2021 period. The documents are unstructured pieces of text, but they are sufficiently standardized so that it's relatively straightforward to extract citations to past cases.
 
 Colombia changed its Constitution in 1991, which means that the CCC had to start almost from scratch following that year. Since then, each judicial decision made by the CCC has been assigned a standardized name (e.g., `C-776-03`, `T-025-04`, `SU-1184-01`).
 
@@ -561,12 +227,252 @@ Note that the data only takes into consideration one single aspect of the "insid
 The following graph shows the number of cases in this dataset, broken down by year and type.
 
 ```{r, fig.height=3, fig.width=7}
-figure1 ## number of cases
+figure1 + theme_custom() ## number of cases
 ```
 
 This shows that the CCC is very prolific, averaging around 898 decisions per year---in comparison, the SCOTUS issues between 100 and 150 decisions per year.
 
 Note that there seems to be an inverse relation between the number of `T` and `SU` cases, which makes sense because the whole purpose of `SU` cases is to consolidate the arguments established by `T` cases and thus the judges might prioritize ones over the others at different times. This makes sense given that 67% of the citations coming *out from* `SU` decisions target past `T` decisions and that 84% of the citations coming *into* `SU` decisions come from `T` decisions.
+
+The following graph shows the average number of inward citations (in-degree) and outward-citations (out-degree) broken out by year and type. Note that the decisions written during 1992 tend to be significantly more cited that the ones written in other years, giving them some sort of first-movers advantage over the others. After all, the most innovative thing of any kind is the first of its kind.
+
+```{r}
+figure2 + theme_custom() ## in- and out-citations by type
+```
+
+Also note that even though `SU` decisions make a very small part of this network, they receive a large number of citations.
+
+Finally, note that `r scales::percent(mean(metadata$indegree == 0), accuracy = 0.01)` of the decisions have never been cited. The following graph shows that there's a steady percentage of cases that never get used, except for the cases written in 2020 and 2021---those haven't had the time to be incorporated
+
+```{r}
+figure3 + theme_custom() # junkyard 
+```
+
+Thus, an important aspect of this citation network---which we can consider a network *of* culture---is that a lot of it goes unused, similarly to how @martin2010 describes "culture" as a junkyard. An alternative metaphor to Dworkin's *chain novel* might very well come from the old reality TV show *Junkyard Wars*, in which every week a team of engineers must assemble a working machine out of the materials available in a junkyard. Similarly, judges---*and their clerks*---assemble arguments from available precedents.
+
+## Methods
+
+::: {#methods .todolist}
+-   Martin: Good to be specific here. However, by this point the reader should have a clear sense of what you are planning to model and why. The theory section should be used to motivate your outcome variable, so that the reader understands that the paper will be analyzing the impact of these legal decisions in terms of citation counts.
+:::
+
+In order to understand how the three mechanisms described above fit the data I have, I compare a variety of regression models to a baseline model that takes into account time, type (`C`, `SU`, `T`) and outdegree.
+
+*What are the implications of inclusion of these mechanisms for future citations?*
+
+The model is a standard negative binomial regression used for modeling count data that's over-dispersed [@gelman2020, pp. 266-8]. This baseline model follows the following specifications:
+
+$$
+\begin{align}
+\text{indegree}_i &\sim \text{NegBin}(\lambda_i, \phi) \\
+\log(\lambda_i) &= \alpha_0  + \underbrace{\alpha_1 \text{SU}_i + \alpha_2 \text{T}_i}_\text{indicator variables} + 
+\beta_1 \text{outdegree}_i + 
+\underbrace{\Sigma_{k = 1}^{8} w_k B_{k, i}}_{\text{Date B-Splines}} + 
+\underbrace{\beta_2 \log(\text{age}_i)}_{\text{Offset}}
+\end{align}
+$$
+
+**List of models:**
+
+|         |                                                                        |
+|:-------:|:-----------------------------------------------------------------------|
+| Model 1 | Baseline Model                                                         |
+| Model 2 | Baseline + Adumbration                                                 |
+| Model 3 | Baseline + Topic Transposition                                         |
+| Model 4 | Baseline + Principle Recombination                                     |
+| Model 5 | Baseline + Adumbration + Topic Transposition                           |
+| Model 6 | Baseline + Adumbration + Principle Recombination                       |
+| Model 7 | Baseline + Topic Transposition + Principle Recombination               |
+| Model 8 | Baseline + Adumbration + Topic Transposition + Principle Recombination |
+
+The idea is to select the best fitting models I use leave-one-out cross-validation (LOO-CV), a standard metric for comparing the relative out-of-sample predictive performance of Bayesian models [@gelman2020, pp. 172-8; @mcelreath2020, pp. 217]. Before doing this, the next three sections describe how I came up with different measurements to track my three hypothesized mechanisms.
+
+### Adumbration
+
+In order to measure adumbration [@merton1968], I looked at each separate decision and then looked at the time that had passed since each reference had been cited by other cases. The following graph looks at three different cases and shows the number of days since each of these references was cited. The proposed measurement of adumbration simply takes the value of the oldest reference. For example, a case like `C-1052-01`, gets assigned the value of 1,310 which is the number of days that has passed since case `C-143-93` has been referenced by other cases.
+
+```{r}
+figure4 + theme_custom() ## adumbration in three cases
+```
+
+This is probably not the best way forward to measure this. So far,
+
+### Principle recombination
+
+The goal here is to figure out whether each individual case is deploying legal principles in a manner that can be considered novel or not. Unlike typical text-networks, these principles are "layered with meaning" and multiple legal treatises have been written about how to best interpret them.
+
+In order to measure principle recombination, I first extracted a list of $238$ principles and looked for them in each case. I then constructed a $26,917 \times 238$ matrix $\mathbf{M}$ in which each row represents a separate case, each column represents a separate principle, and each cell is either $0$ or $1$ (indicating the presence or absence of a legal principle). I then used a two-mode projection $\mathbf{M^\top M}$ in order build a weighted $238 \times 238$ adjacency matrix in which each cell represents the number of decisions that mention a given pair of principles.
+
+```{r}
+# dim(pp_mat)
+# pp_mat["C-776-03", ][which(pp_mat["C-776-03", ] != 0)]
+```
+
+Note that there are ${238 \choose 2} = 28,203$ possible pairings of principles (or edges between principles) and some of these pairings can be considered either typical or atypical. I use the stochastic degree sequence model---a method suggested by @neal2014 for extracting sparse signed graphs from two-mode projections---to extract typical and atypical ties. This model to compares each individual pairing's number of co-occurrences to the distribution of co-occurrences expected from a random two-mode projection in which the both the row sums and column sums of the original matrix $\mathbf{M}$ are approximately fixed (i.e., a null model). When the resulting $p$-values are very low the pairing is deemed atypical and when they are high the pairing is deemed typical. The actual ties are extracted using a statistical hypothesis test with $\alpha = 0.0001$[^6]. The result is a "backbone" or a $238 \times 238$ whose cells contain 1's and -1's for edges whose weights are respectively larger and smaller than expected in the null model.
+
+[^6]: This approach is similar in nature to the one followed by @uzzi2013 for finding typical and atypical combinations of journal pairings.
+
+The following graph shows the resulting network that contains positive ties between different legal principles based on their number of co-occurrences. The nodes are colored based on a popular "community detection" algorithm [@blondel2008] used to detect groups of principles that are commonly employed together.
+
+```{r}
+figure5 + theme_custom() ## full p-to-p network
+```
+
+The principles signaled out on the left---"principio de corresponsabilidad" and "principio *pro infans*" are typically used to decide matters that deal with family and children. The principles signaled on the right are about "religious pluralism" and the "secular state" which tend to co-occur precisely because they often collide with each other. The principles signaled out in the middle deal with issues regarding Colombia's *tutela* mechanism.
+
+Intuitively, typical pairings tend to occur *within* clusters, whereas atypical pairings tend to occur *between* clusters. This is demonstrated by looking at the principles associated with decision `C-370-06` in the following graph[^7]. The panel in the left draws typical ties between principles (mostly withing clusters), whereas the panel on the left draws atypical ties between principles (mostly between clusters).
+
+[^7]: In this particular case, the CCC took the *Justice and Peace* under judicial review. This law dealt with the demobilization of right-wing paramilitary groups. The CCC ordered a significant number of modifications to this law, forcing these groups to (1) make reparations for various victims and (2) participate in a series of "truth commissions". Note that the principles that form atypical connections in these case mention "equality", "human dignity", and "solidarity" which didn't regularly co-occur with the other principles that deal with legislative affairs.
+
+```{r}
+figure6 + theme_custom() ## case recombination
+```
+
+My measurement of "principle recombination" for this particular case simply sums these different ties and records them in two variables, one for the number of typical ties (30) and one for the number of atypical ties (35). I do this for every single case in the network.
+
+### Topic transposition
+
+The goal here is to figure out whether each individual case deals with topics that usually go together or not. I want to test the idea that innovation will happen when a legal argument that's widely applicable in a particular domain (e.g., tax policy) gets introduced into a different domain (e.g., healthcare). For example, has Edward Levi observed that the "present-day minimum wage and hour legislation owes its existence in some measure to diseased cattle, drunkards, defrauders, prostitutes, auto thieves, kidnappers, and convicts, and those who sought to control them [@levi2013, pp. 63].
+
+I used *topic modeling* (also known as Latent Dirichlet Allocation) which is a popular method used to extract a series of latent topics from large amounts of unstructured text. As @blei2012 [pp. 78] explains, "the intuition behind LDA is that documents exhibit multiple topics" and each topic can be approximated as a distribution over a fixed set of words. The objective is to reduce massive amounts of unstructured texts---following a "bag-of-words" assumption---to a set of $K$ topics, which we then interpret by looking at that most prevalent words associated with each topic. Presumably, cases that deal with cattle, drunkards, prostitutes, and thieves can said to belong in different topics.
+
+The strength behind this approach is that it's able to handle *polysemy* or the idea that a single word may have multiple meanings (e.g., "equality"), and it's able to handle *heteroglossia* or the idea that a single decision may address multiple topics at the same time. The weakness of this approach is that there's no straightforward way of identifying the "correct" number of topics and that some of the topics end up having no substantive meaning whatsoever. The common adage according to which "all models are wrong but some are useful" can be restated as "all models are very very wrong when working with text-as-data". However, it's possible to use topic models as a satisfactory strategy to measure what a text is "about".
+
+The appendix (will) contain a thorough description of how I pre-processed this corpus [@denny2018]. The number of topics is set provisionally at 108, following the results search algorithm proposed by @mimno2014 and implemented in the `stm` package in R [@roberts2019].
+
+Having $K =$ `r nrow(stm_corr)` means that the number of pairwise correlations amounts to `r scales::comma(choose(nrow(stm_corr),2))`, which are presented in the following histogram.
+
+```{r}
+# output <- full_join(ego_el, stm_el) |> 
+#   mutate(score = weight*corr) |> 
+#   filter(score < quantile(score, probs = 0.001) | score > quantile(score, probs = 0.999)) |> 
+#   summarize(
+#     familiar = mean(score[score > 0]),
+#     unfamiliar = mean(score[score < 0])
+#   )
+```
+
+```{r}
+figure7 + theme_custom() ## pairwise topic correlations distribution
+```
+
+As expected, some topics are much more related than others. For example, topic 74 deals with *tutelas* through which a citizen is trying to get subsidized access to a specific treatment or medication through the healthcare system; topic 48 deals with a similar issue, but focuses on patients with HIV; and topic 39 deals with patients getting access to specific procedures (e.g., surgery).
+
+```{r}
+figure8 + theme_custom()  ## topic correlations
+```
+
+```{r, eval=FALSE}
+## most correlated
+# stm::plot.STM(corr_out, topics = c(48, 74, 39), type = "labels", text.cex = 3/4)
+# stm::plot.STM(corr_out, topics = c(6, 98), type = "labels", text.cex = 3/4)
+# stm::plot.STM(corr_out, topics = c(23, 79), type = "labels", text.cex = 3/4)
+# stm::plot.STM(corr_out, topics = c(64, 94), type = "labels", text.cex = 3/4)
+# 
+# stm::plot.STM(corr_out, topics = c(10, 82, 90), type = "labels", text.cex = 3/4)
+# 
+# 
+# ## less correlated
+# stm::plot.STM(corr_out, topics = c(10, 19), type = "labels", text.cex = 3/4)
+```
+
+In order to measure *topic transposition* at the case level I take advantage of the fact that (1) every decision has *some* probability of belonging to every topic and (2) every pair of topics is correlated to *some* degree. Thus, I can use a strategy reminiscent of the two-mode projection used previously to create a sort of network in which each topic is connected to every other topic through each case's membership probabilities. The following figure is a schematic of how this process work for a single case with $K = 4$. The $\gamma$'s are membership probabilities and the dotted lines represent $\rho$'s or topic correlations. The resulting network has positive or negative ties (depending on the value of $\rho$).
+
+```{r}
+knitr::include_graphics("images/ego_net_transposition.png")
+```
+
+The following graph shows the results of implementing this idea for decision `T-859-03`. The panel on the left depicts familiar ties between topics (i.e., positively correlated) whereas the panel on the left depicts unfamiliar ties between topics (i.e., negatively correlated). For the sake of visual presentation, I removed pairings topics whose score ($\gamma_i \cdot \gamma_j \cdot \rho_{i,j}$) fall between the 0.001 and the 0.999 percentiles.
+
+```{r}
+figure9 + theme_custom() ## specific case example
+
+# stm::plot.STM(corr_out, topics = c(74, 33, 48, 39, 30), type = "labels", text.cex = 3/4)
+```
+
+As mentioned earlier, topics 74, 48, and 39, deal with access to healthcare and patients with HIV. But topic 74 usually doesn't get discussed alongside topic 33, which deals with clarifying the interpretation and applicability of certain pieces of legislation.
+
+My measurement of "principle recombination" for this particular case sums the absolute values of all these ties and records them in two variables (including the ones not shown), one for familiar ties between topics and the other for unfamiliar ties between topics. I do this for every single case in the network.
+
+## Results
+
+::: {#results .todolist}
+-   Provide some additional discussion of key findings.
+
+-   Improve the fit of this model by improving the baseline regression. Perhaps look at what the age-period-cohort effect people do. At least make it a hierarchical model (I just looked at outdegree by type and it's clear that `SU` types have a higher outdegree, so that shouldn't be a standalone coefficient at the very least.
+:::
+
+*Model comparison*
+
+According to the LOO-CV metric, model 8 (including all predictors) performs best overall. Here, `elpd` stands for expected log predictive density which acts as a measure of model fit based on adding together the log scores---i.e., the logarithm of the probability or density of the observed data, given predictors included in the model [@gelman2020, pp. 174-178]. In short, higher values of `elpd` means that the model fits the data better. The column labeled `elpd_diff` compares the difference in `elpd`'s relative to the best performing model (the model with the highest `elpd`).
+
+```{r}
+loo::loo_compare(loo_out) |> 
+  as_tibble(rownames = "Model") |> 
+  select(Model, elpd_diff, se_diff) |> 
+  mutate(across(c(elpd_diff, se_diff), round, digits = 2)) |> 
+  knitr::kable()
+```
+
+Two things are noteworthy here. First, this approach generates standard errors for the differences in `elpd`'s, allowing us to be cautious when comparing different models instead of simply declaring a model to be "the winner" based on a simple score. Here, model 8 is over two standard errors away from model 7. Second, adding the measurement of *principle recombination* as a predictor produces the greatest amount of improvement.
+
+This means one of two things: either principle recombination is the better predictor or the *measurement* of principle recombination is of better quality than the other two.
+
+```{r}
+# attr(loo_out[[8]], "formula")
+```
+
+*Interpretation*
+
+The following plot shows the coefficients associated with each predictor, along with their 99% "credible intervals". All variables have been standardized to have a mean of zero and a standard deviation of 1, such that the estimates are comparable to each other. Finally, the coefficients have been transformed such that they can be interpreted as percentage differences in the cumulative citation counts that we expect to see when each predictor increases by 1 standard deviation. For example, for every additional 26 references made by a case, we expect to see a 39% increase in future citations.
+
+```{r}
+mod8_coeffplot + theme_custom()
+```
+
+Besides outdegree, the largest coefficient is associated with the number of atypical principle pairings included in a case, followed closely by the number of typical principle pairings. This suggests that principle-based arguments really do predict a higher number of citations. Smaller effects can be seen for my measurements of adumbration and topic transposition. Notably, cases that bridge unfamiliar topics receive higher citations but, all else equal, cases that deal only with familiar topics receive slightly less citations.
+
+*Posterior predictive checking*
+
+The previous results don't rule out the possibility that the models are all badly misspecified. I use *graphical posterior predictive checking* [@gelman2020; @mcelreath2020] to understand where the model is fitting the data poorly. The idea is to generate data from the fitted model and compare it to the observed data. Any systematic discrepancy between the generated data (colored in light blue) and the observed data indicates potential failings of the model.
+
+```{r}
+mod8_ppc_plots + theme_custom()
+```
+
+In short, the model underestimates the number of cases that have received between 1 and 20 citations, overestimates the number of zeroes, and overestimates the number of between 20 and 150 (left panel); it overestimates the average in-degree.
+
+I interpret these results to mean that I should work on improving the baseline model as well.
+
+## Discussion
+
+-   No discussion yet.
+
+-   Future direction from here is to exemplify how principle recombination work over time. For example, I should be able to show that the CCC relied on some combination of principles when discussing a particular topic in the past (e.g., "gender discrimination", "healthcare"), but that it now relies on some other combination of principles.
+
+-   Note that I'm not making strong causal claims, *the goal is description*. I plan on using citation networks and text analysis to get at a large-scale phenomenon in ways that are unfeasible with close reading of texts. However, I do take a theoretical stance on *where* to look for the main sources of change and innovation in constitutional decision-making[^8].
+
+[^8]: Some critics may argue that anything important in legal matters is "exogenous" and that it's therefore foolish to look for "endogenous" drivers of innovation. For example, changes in the co-citation network during 2020 are surely due to the global pandemic and not to the internal dynamics of constitutional law. Presumably this happens for every instance of "innovation" I will be able to find---e.g., a peace process, an economic recession, social unrest, etc. <br><br> I think the answer to this puzzle is recognizing that both endogenous and exogenous drivers of innovation form a sort of "duality". Hard cases (and *all* cases) come directly from the "outside" world. But decisions cannot be reduced to a simple consequence (or reflection) of "external" dynamics.
+
+## Appendix
+
+### Data
+
+The raw data is available publicly in the following github repository:
+
+<https://github.com/acastroaraujo/ccc_datos>
+
+### @funk2017
+
+```{r}
+appendix1 + theme_custom() ## cd index
+```
+
+The $CD_t$ index ranges from -1 (most consolidating) to +1 (most disruptive). The CCC's decisions overall seem to fall below 0, which means that they're predominantly consolidating. But they're only a little bit consolidating, not much.
+
+### More descriptive stuff
+
+This table shows the within and between citations among decisions in the CCC. The references of `C` are mostly other `C` decisions (87%), and their citations come mostly from `C` decisions as well (72%). A similar pattern follows for `T` decisions. Thus, the vast amount of citations are *within* types. But the table also shows that `SU` decisions play a sort of bridging role; most citations for these decisions are *between* types (note the relative sparsity of the cell {2, 2}). The references of `SU` decisions largely come from `T` decisions (67%) and the citations largely come `T` decisions (84%), but there's also a lot of references to `C` decisions (21%).
 
 +---------------+---------------+---------------+---------------+
 | Source/Target | `C`           | `SU`          | `T`           |
@@ -596,251 +502,6 @@ tt
 round(prop.table(tt, 1), 2)
 round(prop.table(tt, 2), 2)
 ```
-
-The following graph shows the average number of inward citations (in-degree) and outward-citations (out-degree) broken out by year and type. Note that the decisions written during 1992 tend to be significantly more cited that the ones written in other years, giving them some sort of first-movers advantage over the others. After all, the most innovative thing of any kind is the first of its kind.
-
-```{r}
-figure2 ## in- and out-citations by type
-```
-
-Also note that even though `SU` decisions make a very small part of this network, they receive a large number of citations.
-
-Finally, note that `r scales::percent(mean(metadata$indegree == 0), accuracy = 0.01)` of the decisions have never been cited. The following graph shows that there's a steady percentage of cases that never get used, except for the cases written in 2020 and 2021---those haven't had the time to be incorporated
-
-```{r}
-figure3 # junkyard 
-```
-
-Thus, an important aspect of this citation network---which we can consider a network *of* culture---is that a lot of it goes unused, similarly to how @martin2010 describes "culture" as a junkyard. An alternative metaphor to Dworkin's *chain novel* might very well come from the old reality TV show *Junkyard Wars*, in which every week a team of engineers must assemble a working machine out of the materials available in a junkyard. Similarly, judges---*and their clerks*---assemble arguments from available precedents.
-
-## Methods
-
-<font size ="2.5">
-
-**Good to be specific here.  However, by this point the reader should have a clear sense of what you are planning to model and why.  The theory section should be used to motivate your outcome variable, so that the reader understands that the paper will be analyzing the impact of these legal decisions in terms of citation counts.**
-
-</font>
-
-In order to understand how the three mechanisms described above fit the data I have, I compare a variety of regression models to a baseline model that takes into account time, type (`C`, `SU`, `T`) and outdegree.
-
-The model is a standard negative binomial regression used for modeling count data that's over-dispersed [@gelman2020, pp. 266-8]. This baseline model follows the following specifications:
-
-$$
-\begin{align}
-\text{indegree}_i &\sim \text{NegBin}(\lambda_i, \phi) \\
-\log(\lambda_i) &= \alpha_0  + \underbrace{\alpha_1 \text{SU}_i + \alpha_2 \text{T}_i}_\text{indicator variables} + 
-\beta_1 \text{outdegree}_i + 
-\underbrace{\Sigma_{k = 1}^{8} w_k B_{k, i}}_{\text{Date B-Splines}} + 
-\underbrace{\beta_2 \log(\text{age}_i)}_{\text{Offset}}
-\end{align}
-$$
-
-**List of models:**
-
-+:-----------:+:-----------------------------------------------------------------------+
-| Model 1     | Baseline Model                                                         |
-+-------------+------------------------------------------------------------------------+
-| Model 2     | Baseline + Adumbration                                                 |
-+-------------+------------------------------------------------------------------------+
-| Model 3     | Baseline + Topic Transposition                                         |
-+-------------+------------------------------------------------------------------------+
-| Model 4     | Baseline + Principle Recombination                                     |
-+-------------+------------------------------------------------------------------------+
-| Model 5     | Baseline + Adumbration + Topic Transposition                           |
-+-------------+------------------------------------------------------------------------+
-| Model 6     | Baseline + Adumbration + Principle Recombination                       |
-+-------------+------------------------------------------------------------------------+
-| Model 7     | Baseline + Topic Transposition + Principle Recombination               |
-+-------------+------------------------------------------------------------------------+
-| Model 8     | Baseline + Adumbration + Topic Transposition + Principle Recombination |
-+-------------+------------------------------------------------------------------------+
-
-The idea is to select the best fitting models I use leave-one-out cross-validation (LOO-CV), a standard metric for comparing the relative out-of-sample predictive performance of Bayesian models [@gelman2020, pp. 172-8; @mcelreath2020, pp. 217]. Before doing this, the next three sections describe how I came up with different measurements to track my three hypothesized mechanisms.
-
-### Adumbration
-
-In order to measure adumbration [@merton1968], I looked at each separate decision and then looked at the time that had passed since each reference had been cited by other cases. The following graph looks at three different cases and shows the number of days since each of these references was cited. The proposed measurement of adumbration simply takes the value of the oldest reference. For example, a case like `C-1052-01`, gets assigned the value of 1,310 which is the number of days that has passed since case `C-143-93` has been referenced by other cases.
-
-```{r}
-figure4 ## adumbration in three cases
-```
-
-This is probably not the best way forward to measure this. So far,
-
-### Principle recombination
-
-The goal here is to figure out whether each individual case is deploying legal principles in a manner that can be considered novel or not. Unlike typical text-networks, these principles are "layered with meaning" and multiple legal treatises have been written about how to best interpret them.
-
-In order to measure principle recombination, I first extracted a list of $238$ principles and looked for them in each case. I then constructed a $26,917 \times 238$ matrix $\mathbf{M}$ in which each row represents a separate case, each column represents a separate principle, and each cell is either $0$ or $1$ (indicating the presence or absence of a legal principle). I then used a two-mode projection $\mathbf{M^\top M}$ in order build a weighted $238 \times 238$ adjacency matrix in which each cell represents the number of decisions that mention a given pair of principles.
-
-```{r}
-# dim(pp_mat)
-# pp_mat["C-776-03", ][which(pp_mat["C-776-03", ] != 0)]
-```
-
-Note that there are ${238 \choose 2} = 28,203$ possible pairings of principles (or edges between principles) and some of these pairings can be considered either typical or atypical. I use the stochastic degree sequence model---a method suggested by @neal2014 for extracting sparse signed graphs from two-mode projections---to extract typical and atypical ties. This model to compares each individual pairing's number of co-occurrences to the distribution of co-occurrences expected from a random two-mode projection in which the both the row sums and column sums of the original matrix $\mathbf{M}$ are approximately fixed (i.e., a null model). When the resulting $p$-values are very low the pairing is deemed atypical and when they are high the pairing is deemed typical. The actual ties are extracted using a statistical hypothesis test with $\alpha = 0.0001$[^6]. The result is a "backbone" or a $238 \times 238$ whose cells contain 1's and -1's for edges whose weights are respectively larger and smaller than expected in the null model.
-
-[^6]: This approach is similar in nature to the one followed by @uzzi2013 for finding typical and atypical combinations of journal pairings.
-
-The following graph shows the resulting network that contains positive ties between different legal principles based on their number of co-occurrences. The nodes are colored based on a popular "community detection" algorithm [@blondel2008] used to detect groups of principles that are commonly employed together.
-
-```{r}
-figure5 ## full p-to-p network
-```
-
-The principles signaled out on the left---"principio de corresponsabilidad" and "principio *pro infans*" are typically used to decide matters that deal with family and children. The principles signaled on the right are about "religious pluralism" and the "secular state" which tend to co-occur precisely because they often collide with each other. The principles signaled out in the middle deal with issues regarding Colombia's *tutela* mechanism.
-
-Intuitively, typical pairings tend to occur *within* clusters, whereas atypical pairings tend to occur *between* clusters. This is demonstrated by looking at the principles associated with decision `C-370-06` in the following graph[^7]. The panel in the left draws typical ties between principles (mostly withing clusters), whereas the panel on the left draws atypical ties between principles (mostly between clusters).
-
-[^7]: In this particular case, the CCC took the *Justice and Peace* under judicial review. This law dealt with the demobilization of right-wing paramilitary groups. The CCC ordered a significant number of modifications to this law, forcing these groups to (1) make reparations for various victims and (2) participate in a series of "truth commissions". Note that the principles that form atypical connections in these case mention "equality", "human dignity", and "solidarity" which didn't regularly co-occur with the other principles that deal with legislative affairs.
-
-```{r}
-figure6 ## case recombination
-```
-
-My measurement of "principle recombination" for this particular case simply sums these different ties and records them in two variables, one for the number of typical ties (30) and one for the number of atypical ties (35). I do this for every single case in the network.
-
-### Topic transposition
-
-The goal here is to figure out whether each individual case deals with topics that usually go together or not. I want to test the idea that innovation will happen when a legal argument that's widely applicable in a particular domain (e.g., tax policy) gets introduced into a different domain (e.g., healthcare). For example, has Edward Levi observed that the "present-day minimum wage and hour legislation owes its existence in some measure to diseased cattle, drunkards, defrauders, prostitutes, auto thieves, kidnappers, and convicts, and those who sought to control them [@levi2013, pp. 63].
-
-I used *topic modeling* (also known as Latent Dirichlet Allocation) which is a popular method used to extract a series of latent topics from large amounts of unstructured text. As @blei2012 [pp. 78] explains, "the intuition behind LDA is that documents exhibit multiple topics" and each topic can be approximated as a distribution over a fixed set of words. The objective is to reduce massive amounts of unstructured texts---following a "bag-of-words" assumption---to a set of $K$ topics, which we then interpret by looking at that most prevalent words associated with each topic. Presumably, cases that deal with cattle, drunkards, prostitutes, and thieves can said to belong in different topics.
-
-The strength behind this approach is that it's able to handle *polysemy* or the idea that a single word may have multiple meanings (e.g., "equality"), and it's able to handle *heteroglossia* or the idea that a single decision may address multiple topics at the same time. The weakness of this approach is that there's no straightforward way of identifying the "correct" number of topics and that some of the topics end up having no substantive meaning whatsoever. The common adage according to which "all models are wrong but some are useful" can be restated as "all models are very very wrong when working with text-as-data". However, it's possible to use topic models as a satisfactory strategy to measure what a text is "about".
-
-The appendix (will) contain a thorough description of how I pre-processed this corpus [@denny2018]. The number of topics is set provisionally at 108, following the results search algorithm proposed by @mimno2014 and implemented in the `stm` package in R [@roberts2019].
-
-Having $K =$ `r nrow(stm_corr)` means that the number of pairwise correlations amounts to `r scales::comma(choose(nrow(stm_corr),2))`, which are presented in the following histogram.
-
-```{r}
-# output <- full_join(ego_el, stm_el) |> 
-#   mutate(score = weight*corr) |> 
-#   filter(score < quantile(score, probs = 0.001) | score > quantile(score, probs = 0.999)) |> 
-#   summarize(
-#     familiar = mean(score[score > 0]),
-#     unfamiliar = mean(score[score < 0])
-#   )
-```
-
-```{r}
-figure7 ## pairwise topic correlations distribution
-```
-
-As expected, some topics are much more related than others. For example, topic 74 deals with *tutelas* through which a citizen is trying to get subsidized access to a specific treatment or medication through the healthcare system; topic 48 deals with a similar issue, but focuses on patients with HIV; and topic 39 deals with patients getting access to specific procedures (e.g., surgery).
-
-```{r}
-figure8  ## topic correlations
-```
-
-```{r, eval=FALSE}
-## most correlated
-# stm::plot.STM(corr_out, topics = c(48, 74, 39), type = "labels", text.cex = 3/4)
-# stm::plot.STM(corr_out, topics = c(6, 98), type = "labels", text.cex = 3/4)
-# stm::plot.STM(corr_out, topics = c(23, 79), type = "labels", text.cex = 3/4)
-# stm::plot.STM(corr_out, topics = c(64, 94), type = "labels", text.cex = 3/4)
-# 
-# stm::plot.STM(corr_out, topics = c(10, 82, 90), type = "labels", text.cex = 3/4)
-# 
-# 
-# ## less correlated
-# stm::plot.STM(corr_out, topics = c(10, 19), type = "labels", text.cex = 3/4)
-```
-
-In order to measure *topic transposition* at the case level I take advantage of the fact that (1) every decision has *some* probability of belonging to every topic and (2) every pair of topics is correlated to *some* degree. Thus, I can use a strategy reminiscent of the two-mode projection used previously to create a sort of network in which each topic is connected to every other topic through each case's membership probabilities. The following figure is a schematic of how this process work for a single case with $K = 4$. The $\gamma$'s are membership probabilities and the dotted lines represent $\rho$'s or topic correlations. The resulting network has positive or negative ties (depending on the value of $\rho$).
-
-```{r}
-knitr::include_graphics("images/ego_net_transposition.png")
-```
-
-The following graph shows the results of implementing this idea for decision `T-859-03`. The panel on the left depicts familiar ties between topics (i.e., positively correlated) whereas the panel on the left depicts unfamiliar ties between topics (i.e., negatively correlated). For the sake of visual presentation, I removed pairings topics whose score ($\gamma_i \cdot \gamma_j \cdot \rho_{i,j}$) fall between the 0.001 and the 0.999 percentiles.
-
-```{r}
-figure9 ## specific case example
-
-# stm::plot.STM(corr_out, topics = c(74, 33, 48, 39, 30), type = "labels", text.cex = 3/4)
-```
-
-As mentioned earlier, topics 74, 48, and 39, deal with access to healthcare and patients with HIV. But topic 74 usually doesn't get discussed alongside topic 33, which deals with clarifying the interpretation and applicability of certain pieces of legislation.
-
-My measurement of "principle recombination" for this particular case sums the absolute values of all these ties and records them in two variables (including the ones not shown), one for familiar ties between topics and the other for unfamiliar ties between topics. I do this for every single case in the network.
-
-## Results
-
-*Model comparison*
-
-According to the LOO-CV metric, model 8 (including all predictors) performs best overall. Here, `elpd` stands for expected log predictive density which acts as a measure of model fit based on adding together the log scores---i.e., the logarithm of the probability or density of the observed data, given predictors included in the model [@gelman2020, pp. 174-178]. In short, higher values of `elpd` means that the model fits the data better. The column labeled `elpd_diff` compares the difference in `elpd`'s relative to the best performing model (the model with the highest `elpd`).
-
-```{r}
-loo::loo_compare(loo_out) |> 
-  as_tibble(rownames = "Model") |> 
-  select(Model, elpd_diff, se_diff) |> 
-  mutate(across(c(elpd_diff, se_diff), round, digits = 2)) |> 
-  knitr::kable()
-```
-
-Two things are noteworthy here. First, this approach generates standard errors for the differences in `elpd`'s, allowing us to be cautious when comparing different models instead of simply declaring a model to be "the winner" based on a simple score. Here, model 8 is over two standard errors away from model 7. Second, adding the measurement of *principle recombination* as a predictor produces the greatest amount of improvement.
-
-This means one of two things: either principle recombination is the better predictor or the *measurement* of principle recombination is of better quality than the other two.
-
-```{r}
-# attr(loo_out[[8]], "formula")
-```
-
-*Interpretation*
-
-The following plot shows the coefficients associated with each predictor, along with their 99% "credible intervals". All variables have been standardized to have a mean of zero and a standard deviation of 1, such that the estimates are comparable to each other. Finally, the coefficients have been transformed such that they can be interpreted as percentage differences in the cumulative citation counts that we expect to see when each predictor increases by 1 standard deviation. For example, for every additional 26 references made by a case, we expect to see a 39% increase in future citations.
-
-```{r}
-mod8_coeffplot
-```
-
-Besides outdegree, the largest coefficient is associated with the number of atypical principle pairings included in a case, followed closely by the number of typical principle pairings. This suggests that principle-based arguments really do predict a higher number of citations. Smaller effects can be seen for my measurements of adumbration and topic transposition. Notably, cases that bridge unfamiliar topics receive higher citations but, all else equal, cases that deal only with familiar topics receive slightly less citations.
-
-<font size = "2.5">
-
-**Provide some additional discussion of key findings here.**
-
-</font>
-
-*Posterior predictive checking*
-
-The previous results don't rule out the possibility that the models are all badly misspecified. I use *graphical posterior predictive checking* [@gelman2020; @mcelreath2020] to understand where the model is fitting the data poorly. The idea is to generate data from the fitted model and compare it to the observed data. Any systematic discrepancy between the generated data (colored in light blue) and the observed data indicates potential failings of the model.
-
-```{r}
-mod8_ppc_plots
-```
-
-In short, the model underestimates the number of cases that have received between 1 and 20 citations, overestimates the number of zeroes, and overestimates the number of between 20 and 150 (left panel); it overestimates the average in-degree.
-
-I interpret these results to mean that I should work on improving the baseline model as well.
-
-To do:
-
--   Improve the fit of this model by improving the baseline regression. Perhaps look at what the age-period-cohort effect people do. At least make it a hierarchical model (I just looked at outdegree by type and it's clear that `SU` types have a higher outdegree, so that shouldn't be a standalone coefficient at the very least.
-
-## Discussion
-
--   No discussion yet.
-
--   Future direction from here is to exemplify how principle recombination work over time. For example, I should be able to show that the CCC relied on some combination of principles when discussing a particular topic in the past (e.g., "gender discrimination", "healthcare"), but that it now relies on some other combination of principles.
-
--   Note that I'm not making strong causal claims, *the goal is description*. I plan on using citation networks and text analysis to get at a large-scale phenomenon in ways that are unfeasible with close reading of texts. However, I do take a theoretical stance on *where* to look for the main sources of change and innovation in constitutional decision-making[^8].
-
-[^8]: Some critics may argue that anything important in legal matters is "exogenous" and that it's therefore foolish to look for "endogenous" drivers of innovation. For example, changes in the co-citation network during 2020 are surely due to the global pandemic and not to the internal dynamics of constitutional law. Presumably this happens for every instance of "innovation" I will be able to find---e.g., a peace process, an economic recession, social unrest, etc. <br><br> I think the answer to this puzzle is recognizing that both endogenous and exogenous drivers of innovation form a sort of "duality". Hard cases (and *all* cases) come directly from the "outside" world. But decisions cannot be reduced to a simple consequence (or reflection) of "external" dynamics.
-
-## Appendix
-
-The raw data is available publicly in the following github repository:
-
-<https://github.com/acastroaraujo/ccc_datos>
-
-### @funk2017
-
-```{r}
-appendix1 ## cd index
-```
-
-The $CD_t$ index ranges from -1 (most consolidating) to +1 (most disruptive). The CCC's decisions overall seem to fall below 0, which means that they're predominantly consolidating. But they're only a little bit consolidating, not much.
 
 ### Pre-processing of text
 

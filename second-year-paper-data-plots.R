@@ -2,12 +2,21 @@
 
 # Setup -------------------------------------------------------------------
 
+library(tidyverse)
 library(igraph)
 library(ggraph)
 library(backbone)
 library(stm)
 library(loo)
 library(patchwork)
+
+theme_set(
+  theme_light(base_family = "Amiri") + theme(
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(colour = "white"), 
+    strip.background = element_rect(fill = "#4C4C4C")
+  )
+)
 
 
 # Data --------------------------------------------------------------------
@@ -54,6 +63,10 @@ atypicality <- read_rds(here::here("analysis", "out", "atypicality.rds"))
 
 adumbration <- read_rds(here::here("analysis", "out", "adumbration.rds"))
 adumbration_counts <- read_rds(here::here("analysis", "out", "adumbration_counts.rds"))
+df_threshold <- adumbration_counts |> 
+  mutate(year = ccc:::extract_year(id)) |> 
+  group_by(year) |> 
+  summarize(threshold = unique(threshold))
 
 transposition <- read_rds(here::here("analysis", "out", "transposition.rds"))
 
@@ -70,8 +83,8 @@ metadata <- metadata |>
 metadata <- metadata |> 
   mutate(days_of_exposure = as.integer(max(date) - date))
 
-mod8_coeffplot <- read_rds(here::here("analysis", "out", "mod8_coeffplot.rds"))
-loo_out <- read_rds(here::here("analysis", "out", "loo_out.rds"))
+mod_coeffplot <- read_rds(here::here("analysis", "out", "mod_coeffplot.rds"))
+loo_out <- read_rds(here::here("analysis", "out", "loo_out2.rds"))
 mod8_ppc_plots <- read_rds(here::here("analysis", "out", "mod8_ppc_plots.rds"))
 
 corr_out <- read_rds(here::here("analysis", "out", "corr_tm.rds"))
@@ -79,10 +92,16 @@ corr_out <- read_rds(here::here("analysis", "out", "corr_tm.rds"))
 ## recombination
 
 bb <- read_rds(here::here("analysis", "out", "bb_sdsm_principles.rds"))
-
 ALPHA <- 0.0001
 bb_net <- backbone.extract(bb, alpha = ALPHA, class = "igraph", signed = TRUE)
-bb_net_positive <- delete_edges(bb_net, which(E(bb_net)$sign == -1)) 
+
+# bb <- read_rds(here::here("analysis", "out", "bb_rp_sdsm.rds"))
+# bb_net <- igraph::graph_from_adjacency_matrix(bb, mode = "undirected", diag = FALSE, weighted = TRUE)
+
+
+
+
+bb_net_positive <- delete_edges(bb_net, which(E(bb_net)$weight == -1)) 
 #bb_net_positive <- delete_vertices(bb_net_positive, which(degree(bb_net_positive) == 0))
 igraph::V(bb_net_positive)$degree <- igraph::degree(bb_net_positive)
 igraph::V(bb_net_positive)$b <- igraph::betweenness(bb_net_positive, directed = FALSE)
@@ -105,6 +124,9 @@ V(bb_net)$degree <- V(bb_net_positive)$degree
 V(bb_net)$b <- V(bb_net_positive)$b
 
 pp_mat <- read_rds(here::here("analysis", "out", "principles_mat.rds"))
+#pmat <- read_rds(here::here("analysis", "out", "principles_mat.rds"))
+#rmat <- read_rds(here::here("analysis", "out", "rights_mat.rds"))
+#pp_mat <- cbind(pmat, rmat)
 case_principles_keep <- names(pp_mat["C-370-06", ][which(pp_mat["C-370-06", ] > 0)])
 
 ## transposition 
@@ -168,9 +190,9 @@ avg_per_year_df <- metadata |>
   group_by(type) |> 
   summarize(avg = mean(n)) |> 
   mutate(offset = case_when(
-    type == "C" ~ 15,
-    type == "SU" ~ 1.5,
-    type == "T" ~ 50
+    type == "C" ~ 20,
+    type == "SU" ~ 2,
+    type == "T" ~ 60
   )) 
 
 avg_per_year_df$x <- c(2019, 2008, 2019)
@@ -182,10 +204,10 @@ figure1 <- metadata |>
   mutate(avg = mean(n)) |> 
   ggplot(aes(year, n)) +
   geom_col(width = 3/4, position = "dodge") +
-  geom_text(
+  geom_label(
     data = avg_per_year_df,
     mapping = aes(x = x, y = avg + offset, label = scales::comma(avg, 0.1)),
-    size = 4
+    size = 3
   ) +
   geom_hline(
     data = avg_per_year_df,
@@ -232,13 +254,17 @@ figure3 <- tidyr::crossing(
     subtitle = paste0("As of ", max(metadata$date))
   )
 
-figure4 <- adumbration |>
-  filter(target %in% c("C-776-03", "C-1052-01", "T-025-04")) |> 
+figure4 <- adumbration |> 
+  mutate(year = ccc:::extract_year(target)) |>
+  left_join(df_threshold) |> 
   group_by(target) |> 
-  mutate(r_label = ifelse(rank(-days) <= 1, reference, NA_character_)) |> 
+  filter(target %in% c("C-776-03", "C-370-06", "T-444-13")) |> 
+  mutate(r_label = ifelse(days > threshold, reference, NA_character_)) |> 
   ggplot(aes(date, days)) + 
   geom_point(aes(color = target), show.legend = FALSE) + 
+  geom_hline(aes(yintercept = threshold), linetype = "dashed") +
   ggrepel::geom_text_repel(aes(label = r_label), size = 3, direction = "x", family = "Amiri") +
+  scale_y_continuous(labels = scales::comma) +
   facet_wrap(~target) + 
   labs(
     title = "Adumbration in Three Cases",
@@ -267,8 +293,9 @@ figure5 <- bb_layout |>
   ) +
   labs(
     title = "Full Two-Mode Projection of Legal Principles", 
-    subtitle = latex2exp::TeX(r"(Backbone algorithm: Stochastic Degree Sequence Model ($\alpha =$0.0001))"),
-    caption = "Layout algorithm: Fruchterman-Reingold")
+    subtitle = latex2exp::TeX(r"(Backbone algorithm: Stochastic Degree Sequence Model ($\alpha =$0.05))"),
+    caption = "Layout algorithm: Fruchterman-Reingold"
+  )
 
 
 figure6 <- delete_vertices(
@@ -283,7 +310,7 @@ figure6 <- delete_vertices(
   ) +
   geom_node_text(aes(label = str_wrap(name, 15)), size = 1.5) +
   labs(title = "Decision C-370-06", subtitle = "An example of principle recombination") +
-  facet_edges(~ fct_rev(factor(ifelse(sign == 1, "Typical Ties", "Atypical Ties")))) 
+  facet_edges(~ fct_rev(factor(ifelse(weight == 1, "Typical Ties", "Atypical Ties")))) 
 
 figure7 <- stm_el |> 
   ggplot(aes(corr)) + 

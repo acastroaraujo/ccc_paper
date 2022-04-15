@@ -3,13 +3,13 @@ title: "Innovation in Constitutional Decision-Making"
 subtitle: "Second-Year Paper Draft"
 author: "Andrés Castro Araújo"
 output:
-  bookdown::html_document2: 
-    toc: true
-    toc_float: true
-    number_sections: false
   bookdown::pdf_document2:
     fig_caption: yes
     toc: false
+    number_sections: false
+  bookdown::html_document2: 
+    toc: true
+    toc_float: true
     number_sections: false
 header-includes:
   - \usepackage{setspace}
@@ -251,13 +251,7 @@ Intuitively, typical pairings tend to occur *within* clusters, whereas atypical 
 figure6 + labs(subtitle = "An example of principle-based argumentation")
 ```
 
-My operationalization of "principle based-argumentation" for this particular decision looks at the ${18 \choose 2} = 153$ possible parings and separates them into three separate variables:
-
--   "Typical"records the number of typical parings---i.e., summing the number of edges on the left-panel ($30$).
-
--   "Atypical"records the number of atypical parings---i.e., summing the number of edges on the right-panel ($35$).
-
--   "Other" records the number of parings that are neither typical or atypical---i.e., $153 - 30 - 35 = 80$.
+My operationalization of "principle based-argumentation" for this particular decision looks at the ${18 \choose 2} = 153$ possible parings and separates them into three separate variables: (1) "Typical" records the number of typical parings---i.e., summing the number of edges on the left-panel ($30$); (2) "Atypical"records the number of atypical parings---i.e., summing the number of edges on the right-panel ($35$); and (3) "Other" records the number of parings that are neither typical or atypical---i.e., $153 - 30 - 35 = 80$.
 
 I do this for every single case in the network.
 
@@ -280,7 +274,7 @@ This measurement is henceforth labelled "adumbration" but it should be noted tha
 
 Table \@ref(tab:elpddiff) contains the model comparisons using the LOO-CV metric. Here, ELPD stands for *expected log predictive density* which acts as a measure of model fit based on adding together the log scores---i.e., the logarithm of the probability or density of the observed data, given predictors included in the model [@gelman2020, pp. 174-178]. In short, higher values of ELPD means that the model fits the data better. The second column contains the variables that were added to the baseline, the third column compares the difference in ELPDs relative to the best performing model (the model with the highest ELDP). Finally, this approach generates standard errors for the differences in ELPDs, allowing us to be more cautious when comparing different models---as opposed to simply declaring one model to be "the winner" on the basis of a point estimate. These standard errors are included in the fourth column.
 
-```{r elpddiff}
+```{r elpddiff, out.width="80%"}
 df_description <- tibble(
   Model = paste0("mod", LETTERS[1:6]),
   Variables = c("Baseline", "Adumbration", "Principle-based argumentation", 
@@ -293,10 +287,11 @@ loo::loo_compare(loo_out) |>
   select(Model, Variables, elpd_diff, se_diff) |>
   mutate(across(c(elpd_diff, se_diff), round, digits = 2)) |> 
   rename("ELPD (difference)" = "elpd_diff", "Standard Error (difference)" = "se_diff") |> 
-  knitr::kable(caption = "Differences in expected log predictive density (ELPD) between models, relative to the model with the highest ELPD.")
+  knitr::kable(caption = "Differences in expected log predictive density (ELPD) between models, relative to the model with the highest ELPD.") |> 
+  kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-This table allows us to rule out $H_2$. Adding the measurement of "adumbration" never improves the predictive accuracy of the model such that it's more than two standard deviations away from the baseline. On the other hand, the measurement for "principle-based argumentation" does significantly improve the predictive accuracy of the models which suggests that there's evidence for $H_1$.
+This table allows us to rule out $H_2$. Adding the measurement of "adumbration" never improves the predictive accuracy any the model such that it's more than two standard deviations away from a better fitting model. On the other hand, the measurement for "principle-based argumentation" does significantly improve the predictive accuracy of the models which suggests that there's evidence for $H_1$.
 
 Figure \@ref(fig:mod-coeffplot) contains the estimated coefficients from Model C along with their 95% "credible intervals". All variables have been standardized to have a mean of zero and a standard deviation of one, such that the magnitudes are comparable to each other. Thus, engaging in principle-based argumentation is predicted to have positive effects on the number of cumulative citation counts (or in-degree), but "typicality" is slightly more important than "atypicality" (in line with the judicial field's conservative disposition).
 

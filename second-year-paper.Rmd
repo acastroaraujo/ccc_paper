@@ -1,17 +1,22 @@
 ---
 title: "Innovation in Constitutional Decision-Making"
+subtitle: "Second-Year Paper Draft"
 author: "Andrés Castro Araújo"
 output:
   bookdown::html_document2: 
     toc: true
     toc_float: true
     number_sections: false
+  bookdown::pdf_document2:
+    fig_caption: yes
+    toc: false
+    number_sections: false
+header-includes:
+  - \usepackage{setspace}
+  - \doublespacing
 bibliography: references.bib
 csl: american-sociological-association.csl
-subtitle: Second-Year Paper Draft
 abstract: "Studies of innovation usually focus on environments that encourage novelty (e.g., science and technology). This article looks at innovation in constitutional decision-making, which presents a paradox: the judicial field actively discourages any form of innovation in line with what some legal scholars call the \"gravitational force of precedent.\" Here, _an innovative legal argument is defined as any configuration of cultural elements that judges find useful when attempting to solve \"hard cases.\"_. I argue that whether a decision is innovative or not (in this sense) is something that will be reflected in it's cumulative citation count. I then proceed to test two hypothesis: a decision's cumulative citation count will be predicted by the extent of principle-based argumentation and ($H_1$) the motivated search for long-forgotten precedents ($H_2$). I find evidence for $H_1$ but no evidence $H_2$."
-editor_options:
-  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -31,6 +36,7 @@ knitr::opts_chunk$set(
 )
 
 library(tidyverse)
+library(cowplot)
 
 theme_custom <- function() {
     theme_light(base_family = "Amiri") + theme(
@@ -200,13 +206,11 @@ In order to understand how test the two hypothesis described above, I compare a 
 The baseline model is a standard negative binomial regression used for modeling count data that's over-dispersed [@gelman2020, pp. 266-8]. The linear predictor for this baseline model is specified as follows:
 
 $$
-\begin{align}
-\log(\text{indegree}) &= \alpha_0  + \underbrace{\alpha_1 \text{type}_\text{SU} + \alpha_2 \text{type}_\text{T}}_\text{indicator variables} + 
+\log(\text{indegree}) = \alpha_0  + \underbrace{\alpha_1 \text{type}_\text{SU} + \alpha_2 \text{type}_\text{T}}_\text{indicator variables} + 
 \beta_1 \text{outdegree}_i + 
 \underbrace{\Sigma_{k = 1}^{13} \phi_i \text{topic-cluster}}_\text{indicator variables} +  
 \underbrace{\Sigma_{k = 1}^{3} w_k \text{B}_{k, i}}_{\text{Date B-Splines}} + 
 \underbrace{\log(\text{age}_i)}_{\text{Offset}}
-\end{align}
 $$
 
 The "topic-cluster" variable is described in further detail in the Appendix. In short, some topics might be more highly cited than others (e.g., health care, social security) and thus it's necessary to include them in the regression as fixed-effects. The topics were created by using hierarchical clustering on the actual combination of words contained in each decision.
@@ -221,13 +225,16 @@ This allowed me to construct a $26,917 \times 748$ matrix ($\mathbf{M}$) in whic
 
 Note that overall there are ${748 \choose 2} = 279,378$ possible pairings (or edges). Furthermore, some of these pairings can be considered either typical or atypical [cf. @uzzi2013]. I use the stochastic degree sequence model---a method suggested by @neal2014 for extracting from two-mode projections---to extract typical and atypical pairings. This model to compares each individual pairing's number of co-occurrences to the distribution of co-occurrences expected from a random two-mode projection in which the both the row sums and column sums of the original matrix $\mathbf{M}$ are approximately fixed (i.e., a null model). When the resulting $p$-values are very low the pairing is deemed atypical and when they are high the pairing is deemed typical. The actual ties, as shown schematically in Figure \@ref(fig:backbone-test), are extracted using a statistical hypothesis test with $\alpha = 0.05$.
 
-```{r backbone-test, out.width="90%", fig.cap="A schematic description of the logic behind using hypothesis testing to extract typical pairings and atypical parings. This approach is similar in nature to the one followed by @uzzi2013 for finding typical and atypical combinations of journal pairings."}
-knitr::include_graphics("images/backbone-logic.svg")
+```{r backbone-test, fig.cap="A schematic description of the logic behind using hypothesis testing to extract typical pairings and atypical parings. This approach is similar in nature to the one followed by @uzzi2013 for finding typical and atypical combinations of journal pairings."}
+fig_svg<-cowplot::ggdraw()+cowplot::draw_image("images/backbone-logic.svg")
+plot(fig_svg)
+## thank you, dear stranger
+## https://stackoverflow.com/questions/34064292/is-it-possible-to-include-svg-image-in-pdf-document-rendered-by-rmarkdown
 ```
 
 The result is a "network backbone" or a $748 \times 748$ whose cells contain 1's and -1's for edges whose weights are respectively larger and smaller than expected in the null model. Figure \@ref(fig:two-mode-principles) shows the resulting network that contains positive ties between different legal principles based on their number of co-occurrences. The nodes are colored based on a popular "community detection" algorithm [@blondel2008] used to detect groups of principles that are commonly employed together.
 
-```{r two-mode-principles, fig.cap="The layout of the nodes was creating the Fruchterman-Reingold algorithm, implemented in the igraph package. Note that typical ties tend to occur within clusters. Only \"principles\" are shown for ease of presentation (\"rights\" are excluded)."}
+```{r two-mode-principles, fig.cap="The layout of the nodes was creating the Fruchterman-Reingold algorithm, implemented in the igraph package. Note that typical ties tend to occur within clusters. For ease of presentation, only \"principles\" are shown (\"rights\" are excluded)."}
 figure5 + labs(
   title = "Two-mode projection of typical ties among legal principles",
   caption = NULL
@@ -240,13 +247,13 @@ Intuitively, typical pairings tend to occur *within* clusters, whereas atypical 
 
 [^3]: In this particular case, the CCC took the *Justice and Peace* under judicial review. This law dealt with the demobilization of right-wing paramilitary groups. The CCC ordered a significant number of modifications to this law, forcing these groups to (1) make reparations for various victims and (2) participate in a series of "truth commissions". Note that the principles that form atypical connections in these case mention "equality", "human dignity", and "solidarity" which didn't regularly co-occur with the other principles that deal with legislative affairs.
 
-```{r c-370-06, fig.cap="In this particular case, the CCC took the Justice and Peace under judicial review. This law dealt with the demobilization of right-wing paramilitary groups. The CCC ordered a significant number of modifications to this law, forcing these groups to (1) make reparations for various victims and (2) participate in a series of \"truth commissions\". Note that the principles that form atypical connections in these case mention \"equality\", \"human dignity\", and \"solidarity\" which didn't regularly co-occur with the other principles that deal with legislative affairs."}
+```{r c-370-06, out.width="80%", fig.cap="In this particular case, the CCC took the Justice and Peace under judicial review. This law dealt with the demobilization of right-wing paramilitary groups. The CCC ordered a significant number of modifications to this law, forcing these groups to (1) make reparations for various victims and (2) participate in a series of \"truth commissions\". Note that the principles that form atypical connections in these case mention \"equality\", \"human dignity\", and \"solidarity\" which didn't regularly co-occur with the other principles that deal with legislative affairs."}
 figure6 + labs(subtitle = "An example of principle-based argumentation")
 ```
 
 My operationalization of "principle based-argumentation" for this particular decision looks at the ${18 \choose 2} = 153$ possible parings and separates them into three separate variables:
 
--   "Typical"records the number of typical parings---i.e., suming the number of edges on the left-panel ($30$).
+-   "Typical"records the number of typical parings---i.e., summing the number of edges on the left-panel ($30$).
 
 -   "Atypical"records the number of atypical parings---i.e., summing the number of edges on the right-panel ($35$).
 
@@ -260,7 +267,7 @@ In order to measure the motivated search for long-forgotten decisions I looked a
 
 Figure \@ref(fig:adum-three-cases) looks at three different cases and shows the number of days since each of these references was cited on the y-axis. For example, when case `C-370-06` was decided roughly 1,500 days had passed since decisions `T-226-95` and `C-283-95` were cited elsewhere.
 
-```{r adum-three-cases, fig.cap="This graphs looks at the reference contained in three separate cases. From left to right, the measurement for \"adumbration\" is 4, 1, and 0 respectively."}
+```{r adum-three-cases, out.width="80%", fig.cap="This graphs looks at the reference contained in three separate cases. From left to right, the measurement for \"adumbration\" is 4, 1, and 0 respectively."}
 figure4 + labs(
   title = "Search for long-forgotten decisions in three cases",
   subtitle = NULL
@@ -293,17 +300,17 @@ This table allows us to rule out $H_2$. Adding the measurement of "adumbration" 
 
 Figure \@ref(fig:mod-coeffplot) contains the estimated coefficients from Model C along with their 95% "credible intervals". All variables have been standardized to have a mean of zero and a standard deviation of one, such that the magnitudes are comparable to each other. Thus, engaging in principle-based argumentation is predicted to have positive effects on the number of cumulative citation counts (or in-degree), but "typicality" is slightly more important than "atypicality" (in line with the judicial field's conservative disposition).
 
-```{r mod-coeffplot, fig.cap="This figure contains the posterior distribution for the coefficients of interest estimated in Model C. All of these variables were standardized (mean = 0, standard deviation = 1) prior to fitting the model."}
+```{r mod-coeffplot, out.width="80%", fig.cap="This figure contains the posterior distribution for the coefficients of interest estimated in Model C. All of these variables were standardized (mean = 0, standard deviation = 1) prior to fitting the model."}
 mod_coeffplot + theme_custom() + labs(title = NULL, subtitle = NULL)
 ```
 
-Here, each coefficient is the expected difference in cumulative citation counts (on the logarithmic scale) when the number of principles is increased by one standard deviation. Thus, an increase of one standard deviation in the number of "typical parings" (or 4.6 atypical pairings) is associated---all else equal---with a 26% increase in cumulative citation counts ($e^{0.23} = 1.2586$); ian increase of one standard deviation in the number of "atypical pairings" (or 3.4 typical parings) is associated with a 20% increase in cumulative citation counts ($e^{0.18} = 1.1972$); and an increase of one standard deviation in the number of pairings that are neither typical nor atypical (or 60.7 pairings) is associated with a 6% increase in cumulative citation counts ($e^{0.06} = 1.0618$). Finally, in line with prior research [e.g., @uzzi2013; @foster2015], there's evidence for an optimal mixture of novel and conventional elements in predicting innovation. An increase of one standard deviation in the number of both typical and atypical pairings is associated with a 50% increase in cumulative citation counts ($e^{0.18}\times e^{0.23} = 1.5068$).
+Here, each coefficient is the expected difference in cumulative citation counts (on the logarithmic scale) when the number of principles is increased by one standard deviation. Thus, an increase of one standard deviation in the number of "typical parings" (or 4.6 atypical pairings) is associated---all else equal---with a 26% increase in cumulative citation counts ($e^{0.23} = 1.2586$); an increase of one standard deviation in the number of "atypical pairings" (or 3.4 typical parings) is associated with a 20% increase in cumulative citation counts ($e^{0.18} = 1.1972$); and an increase of one standard deviation in the number of pairings that are neither typical nor atypical (or 60.7 pairings) is associated with a 6% increase in cumulative citation counts ($e^{0.06} = 1.0618$). Finally, in line with prior research [e.g., @uzzi2013; @foster2015], there's evidence for an optimal mixture of novel and conventional elements in predicting innovation. An increase of one standard deviation in the number of both typical and atypical pairings is associated with a 50% increase in cumulative citation counts ($e^{0.18}\times e^{0.23} = 1.5068$).
 
 ***Posterior predictive checking***
 
 The previous results don't rule out the possibility that the models are all badly misspecified. I use *graphical posterior predictive checking* [@gelman2020; @mcelreath2020] to understand where the model is fitting the data poorly. The idea with this approach is to generate data from the fitted model and compare it to the observed data. Any systematic discrepancy between the generated data (colored in light blue) and the observed data indicates potential failings of the model. Figure \@ref(fig:ppc) shows the posterior predictive check corresponding to Model C.
 
-```{r ppc, fig.cap="Posterior predictive check comparing density plot of cumulative citation counts (dark line) to 500 predictive replications (light blue lines). The $x$-axis is on the log(count + 1) scale to better show the whole range of he data. The discrepancies indicate where the model shows lack of fit."}
+```{r ppc, out.width="80%", fig.cap="Posterior predictive check comparing density plot of cumulative citation counts (dark line) to 500 predictive replications (light blue lines). The $x$-axis is on the log(count + 1) scale to better show the whole range of he data. The discrepancies indicate where the model shows lack of fit."}
 mod8_ppc_plots + theme_custom()
 ```
 
@@ -373,6 +380,10 @@ To do:
 
 ```{r hc-clusters, out.width="80%", fig.cap=""}
 knitr::include_graphics("images/hc_clusters.png")
+```
+
+```{r, results='asis', eval=(knitr::opts_knit$get('rmarkdown.pandoc.to') == 'latex')}
+cat('\\pagebreak')
 ```
 
 ## References

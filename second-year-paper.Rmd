@@ -2,21 +2,26 @@
 title: "Innovation in Constitutional Decision-Making"
 subtitle: "Second-Year Paper Draft"
 author: "Andrés Castro Araújo"
+always_allow_html: true
 output:
-  bookdown::pdf_document2:
-    fig_caption: yes
-    toc: false
-    number_sections: false
   bookdown::html_document2: 
     toc: true
     toc_float: true
+    number_sections: false
+  bookdown::word_document2:
+    fig_caption: yes
+    toc: false
+    number_sections: false
+  bookdown::pdf_document2:
+    fig_caption: yes
+    toc: false
     number_sections: false
 header-includes:
   - \usepackage{setspace}
   - \doublespacing
 bibliography: references.bib
 csl: american-sociological-association.csl
-abstract: "Studies of innovation usually focus on environments that encourage novelty (e.g., science and technology). This article looks at innovation in constitutional decision-making, which presents a paradox: the judicial field actively discourages any form of innovation in line with what some legal scholars call the \"gravitational force of precedent.\" Here, _an innovative legal argument is defined as any configuration of cultural elements that judges find useful when attempting to solve \"hard cases.\"_. I argue that whether a decision is innovative or not (in this sense) is something that will be reflected in it's cumulative citation count. I then proceed to test two hypothesis: a decision's cumulative citation count will be predicted by the extent of principle-based argumentation and ($H_1$) the motivated search for long-forgotten precedents ($H_2$). I find evidence for $H_1$ but no evidence $H_2$."
+abstract: "Studies of innovation usually focus on environments that encourage novelty (e.g., science and technology). This article looks at innovation in constitutional decision-making, which presents a paradox: the judicial field actively discourages any form of innovation in line with what some legal scholars call the \"gravitational force of precedent.\" Here, _an innovative legal argument is defined as any configuration of cultural elements that judges find useful when attempting to solve hard cases_. I argue that whether a decision is innovative or not (in this sense) is something that will be reflected in its cumulative citation count. I then proceed to test two hypothesis: a decision's cumulative citation count will be predicted by the extent of principle-based argumentation ($H_1$) and the motivated search for long-forgotten precedents ($H_2$). I find evidence for $H_1$ but no evidence $H_2$."
 ---
 
 ```{r setup, include=FALSE}
@@ -98,39 +103,56 @@ source("second-year-paper-data-plots.R")
 source("viz_cemetary.R")
 ```
 
+::: {#.todolist}
+-   Read the stuff by Diego Medina.
+
+-   Read the stuff by Stinchcombe again.
+
+-   Follow Martin's more substantive suggestions.
+
+From Nico:
+
+-   Creo que la parte de realism/formalism queda un poco flotando al principio - podría ser mas claro en que forma ese debate reta lo que estas haciendo o por que es relevante.
+
+-   La conclusion que hay evidencia de que el balance de typical y atypical conlleva a mas citas requiere que haya artículos que usen ambas. Si existen? O sea, la afirmacion pierde validez si hay artículos que solo usan unos estilos de citación - mostly typical // mostly atypical.
+
+    This means that I'll have to expand on the descriptive stuff. Maybe signal out some super precedents. What makes them "super"? Do the results help inform this?
+:::
+
 ## Introduction
 
 This article attempts to understand creativity and innovation in an environment that actively *discourages* novelty: constitutional decision-making in higher courts. More specifically, I use insights from the study of citation networks in science and technology to analyze the network of citations embedded in all decisions made by the Colombian Constitutional Court (CCC) for the `r paste(range(metadata$year), collapse = "-")` period.
 
-The literature that relies on network methods to study innovation in science and technology usually understands innovation in environments that rewards novelty. Legal reasoning, on the other hand, is constrained by the "gravitational force of precedent". Judges must show deference to decisions and styles of reasoning made in the past. In other words, *innovation in the judicial field---if such a thing exists---must masquerade as "conservatism" or "tradition".* Thus, this article responds to a larger call for researchers to "pay further attention to explaining, or at least accounting for, variance in cultural fields with respect to their institutionalized tolerance for (and tendency to promote or discourage) cultural innovation and change" [@kaufman2004, pp. 352]
+The literature that relies on network methods to study innovation in science and technology usually understands innovation in environments that reward novelty. Legal reasoning, on the other hand, is constrained by the "gravitational force of precedent". Judges must show deference to decisions and styles of reasoning made in the past. In other words, *innovation in the judicial field---if such a thing exists---must masquerade as "conservatism" or "tradition".* Thus, this article responds to a larger call for researchers to "pay further attention to explaining, or at least accounting for, variance in cultural fields with respect to their institutionalized tolerance for (and tendency to promote or discourage) cultural innovation and change" [@kaufman2004, pp. 352]
 
 *I define an innovative legal argument as any configuration of cultural elements that's useful for judges attempting to solve hard cases.* This definition follows from the way in which @godart2020 [pp. 494] define *creativity* as "an intentional configuration of cultural and material elements that is unexpected for a given audience". But innovation is more than just "creativity". An innovation also needs to be successful in solving a perceived problem for some audience. Thus, my definition of innovative legal arguments also follows from the observation that "innovation" is forced upon judges when they are dealing with "hard cases"---i.e., "those cases in which the result is not clearly dictated by statute or precedent" [@dworkin1975, pp. 1057].
 
-This article explores two particular hypothesis. First, an innovative legal argument will contain some form of "principle-based argumentation"---i.e., innovative legal arguments rely on the novel combination of legal principles ($H_1$). Second, an innovative legal argument will contain traces of what @merton1968 calls "adumbration"---i.e., the motivated search for long-forgotten cases which can then be reinterpreted in novel ways, allowing for judges to hide their creative work behind the veil of tradition.
+This article explores two particular hypotheses. First, an innovative legal argument will contain some form of "principle-based argumentation"---i.e., innovative legal arguments rely on the novel combination of legal principles ($H_1$). Second, an innovative legal argument will contain traces of what @merton1968 calls "adumbration"---i.e., the motivated search for long-forgotten cases which can then be reinterpreted in novel ways, allowing for judges to hide their creative work behind the veil of tradition.
 
 The approach I take is very different to the usual "law and society" approach [@calavita2016], which prioritizes the law's entanglement with different forms of inequality (e.g., class, gender, race). These scholars tend to see the law as a reflection (or rationalization) of broader power dynamics. The difference in approach is reminiscent of the opposition between "legal formalism" and "legal realism", which deals with the thorny question of whether law can be differentiated from politics. Formalists emphasize internal dynamics, whereas realists emphasize exogenous dynamics (e.g., electoral politics, public opinion, economics, social movements). This article prioritizes internal dynamics but does not engage in the more difficult question of adjudicating between "formalism" and "realism"---an opposition which @tamanaha2009 argues to be more a caricature than an actual description of how lawyers think about their own practice.
 
 The emphasis on internal dynamics is increasingly common in some parts of cultural sociology [see @kaufman2004], though perhaps the most famous example of such form of explanation is Kuhn's [-@kuhn2012] account of how the accumulation of anomalous findings drives scientific revolutions. With regards to legal reasoning, Arthur Stinchcombe [-@stinchcombe2001] has noted that when sociologists study "formal structures"---e.g., legal reasoning---they either focus on the fact that (1) they seem inconsequential or (2) that they serve some pathological purpose. But this perspective---more common in research that emphasizes external dynamics---"does not have the guts of institutions in it" [@stinchcombe1997, pp. 17]; most people inside organizations are not all that cynical and---for the most part---judges are interested in having legal cases "handled right" (i.e., in conformity with professional standards and norms). In other words, the people who serve as "the guts of institutions" hold organizations accountable to their values[^1].
 
-[^1]: *The problem with viewing constitutional decision-making as a reflection of politics (or power) is that we then have difficulties condemning the increasing politicization of the judicial field.* If the boundary between law and politics is just a fraud---a well concocted lie---, then there's nothing extraordinary about having an increasing number of judges that make decisions on the basis of "external" interests. Sociologists of science have faced similar conundrums in the past with regards to climate change denial and the rise of conspiracy theorists [see @latour2004].
+[^1]: *The problem with viewing constitutional decision-making as a reflection of politics (or power) is that we then have difficulties condemning the increasing politicization of the judicial field.* If the boundary between law and politics is just a fraud---a well concocted lie---then there's nothing extraordinary about having an increasing number of judges that make decisions on the basis of "external" interests. Sociologists of science have faced similar conundrums in the past with regards to climate change denial and the rise of conspiracy theories [see @latour2004].
 
-The argument I'm trying to make is that---beyond the focus on power and politics---it's important to pay attention to the "guts of institutions" as part of a larger explanation of legal change and innovation, which also includes "realist" conceptions of how the law operates. It seems obvious that extra-legal interests and considerations play an important role. But the importance of these extrinsic interests is itself an empirical question. So, by focusing only on the written texts, I'm highlighting the type of internal dynamics that usually get ignored by social science research.
+The argument I'm trying to make is that---beyond the focus on power and politics---it is important to pay attention to the "guts of institutions" as part of a larger explanation of legal change and innovation, which also includes "realist" conceptions of how the law operates. It seems obvious that extra-legal interests and considerations play an important role. But the importance of these extrinsic interests is itself an empirical question. So, by focusing only on the written texts, I'm highlighting the type of internal dynamics that usually get ignored by social science research.
 
 ## Theory
 
 ### Citation networks in science and technology
 
-Legal citation networks share many formal properties with those that scholars use to study innovation in science and technology [e.g., @uzzi2013; @funk2017; @wu2019]. These are usually directed networks in which scientific articles or technological patents contain citations to each other over time. The main difference is that, as mentioned earlier, these scholars study creative works in environments that encourage novelty. A second difference worth noting is that the CCC is more akin to an organization that's trying to preserve its "organizational memory" and less to the decentralized network of researchers and/or entrepreneurs that make up the bulk of citation networks in science or technology. Regardless of these differences, this literature contains concepts and metaphors that provide general insights about the evolution of citation networks.
+Legal citation networks share many formal properties with those that scholars use to study innovation in science and technology [e.g., @uzzi2013; @funk2017; @wu2019]. These are usually directed networks in which scientific articles or technological patents contain citations to each other over time. The main difference is that, as mentioned earlier, these scholars study creative works in environments that encourage novelty. A second difference worth noting is that the CCC is more akin to an organization that is trying to preserve its "organizational memory" and less to the decentralized network of researchers and/or entrepreneurs that make up the bulk of citation networks in science or technology. Regardless of these differences, this literature contains concepts and metaphors that provide general insights about the evolution of citation networks.
 
 There are at least three network metaphors that arise from this literature:
 
-First, *a network of citations filled with short-range connections (i.e., like knitting).* This type of network might be generated through "knowledge encapsulation" [see @merton1968 on "obliteration by incorporation"; @whitley1970 on "black boxing"]. This is a process whereby previous research stops getting cited, but only because it has been elevated to "common sense"---i.e., it's taken for granted. For this to happen, previous research gets simplified and packaged in seemingly unproblematic ways---every messy detail is concealed [@latour1987]. As this process unfolds, consensus leads to lack of citations after a certain time---e.g., nobody needs to cite the U.S. Surgeon General report of 1964 *anymore* to support the claim that tobacco causes cancer [@shwed2010].
+One metaphor is *a network of citations filled with short-range connections (i.e., like knitting).* This type of network might be generated through "knowledge encapsulation" [see @merton1968 on "obliteration by incorporation"; @whitley1970 on "black boxing"]. This is a process whereby previous research stops getting cited, but only because it has been elevated to common sense---i.e., it is taken for granted. For this to happen, previous research gets simplified and packaged in seemingly unproblematic ways---every messy detail is concealed [@latour1987]. As this process unfolds, consensus leads to lack of citations after a certain time---e.g., nobody needs to cite the U.S. Surgeon General report of 1964 *anymore* to support the claim that tobacco causes cancer [@shwed2010].
 
-Second, *a network of citations filled with long-range connections (i.e., a small-world type of network).* This type of network might be generated through what @merton1968 calls "adumbration" or deference to *tradition.* For example, @hargens2000 notes that a disproportionate citation of "old" foundational documents occurs when authors cite papers as examples of *perspectives* or *general approaches* rather than as support for specific points---e.g., citing Karl Marx to make the general point that exploitation matters. @merton1968 complained that *adumbrationists* have a particular strong bias towards finding strong resemblances where they *don't exist*. But this might actually be a feature of innovation in constitutional decision-making (see $H_2$), given its institutional deference towards precedent.
+Another metaphor involves *a network of citations filled with long-range connections (i.e., a small-world type of network).* This type of network might be generated through what @merton1968 calls "adumbration" or deference to *tradition.* For example, @hargens2000 notes that a disproportionate citation of old foundational documents occurs when authors cite papers as examples of *perspectives* or *general approaches* rather than as support for specific points---e.g., citing Karl Marx to make the general point that exploitation matters. @merton1968 complained that *adumbrationists* have a particular bias towards finding strong resemblances where they *do not exist*. But this might actually be a feature of innovation in constitutional decision-making (see $H_2$), given its institutional deference towards precedent.
 
-Third, *a network of citations that's subjected to episodic moments of disruption and consolidation.* This type of network arises through the mechanism of "creative disruption" [@mcmahan2021; @funk2017]. The idea is that some pieces of creative work can be seen as *intervening* on the whole network, drawing attention away from from some nodes and promoting others to the status of exemplars. @funk2017 developed an index that can be used to measure whether a new node *disrupts* the way other nodes are being cited (i.e., a break with the past) or whether it *consolidates* them (i.e., increases the coherence of some domain). The intuition is that a disruptive node will decrease the citations of predecessors because this new node (e.g., a technology, an idea, a decision) indicates a break with past ways of thinking; in contrast, a consolidating node should be cited together with their predecessors.
+A third metaphor is *a network of citations that is subjected to episodic moments of disruption and consolidation.* This type of network arises through the mechanism of "creative disruption" [@mcmahan2021; @funk2017]. The idea is that some pieces of creative work can be seen as *intervening* on the whole network, drawing attention away from some nodes and promoting others to the status of exemplars. @funk2017 developed an index that can be used to measure whether a new node *disrupts* the way other nodes are being cited (i.e., a break with the past) or whether it *consolidates* them (i.e., increases the coherence of some domain). The intuition is that a disruptive node will decrease the citations of predecessors because this new node (e.g., a technology, an idea, a decision) indicates a break with past ways of thinking; in contrast, a consolidating node should be cited together with its predecessors.
 
-Finally, a subset of this literature focuses on the concept of *recombinant innovation.* The argument is that "new" ideas are not usually "out there" waiting to be discovered, but that they are usually created by reconfiguring existing resources in different ways. Research on scientific practice has focused on the the novel juxtaposition of scientific ideas as a source of innovation [e.g., @leahey2014; @uzzi2013]. This literature has taken the *cumulative citation count* as an indicator of innovation because presumably it captures "the extent to which the work was useful to---and valued by---other scholars" [@leahey2014, pp. 347]. Following this line of reasoning, research in the sociology of science typically focuses on the *tension* between "tradition" and "innovation" [e.g., @foster2015]. Thus, for the purposes of innovation, there should be some optimal mixture of novel and conventional elements; "novelty and conventionality are not opposing factors in the production of science; rather, papers with an injection of novelty into an otherwise exceptionally familiar mass of prior work are unusually likely to have high impact" [@uzzi2013, pp. 470].
+Some of the literature invoking these metaphors emphasizes the concept of *recombinant
+innovation.* The argument is that "new" ideas are not usually "out there" waiting to be discovered, but that they are usually created by reconfiguring existing resources in different ways. Research on scientific practice has focused on the novel juxtaposition of scientific ideas as a source of innovation [e.g., @leahey2014; @uzzi2013]. This literature has taken the *cumulative citation count* as an indicator of innovation because presumably it captures "the extent to which the work was useful to---and valued by---other scholars" [@leahey2014, pp. 347]. Following this line of reasoning, research in the sociology of science typically focuses on the *tension* between "tradition" and "innovation" [e.g., @foster2015]. Thus, for the purposes of innovation, there should be some optimal mixture of novel and conventional elements; "novelty and conventionality are not opposing factors in the production of science; rather, papers with an injection of novelty into an otherwise exceptionally familiar mass of prior work are unusually likely to have high impact" [@uzzi2013, pp. 470].
 
 ### Hard cases and innovation
 
@@ -142,43 +164,27 @@ Ronald Dworkin [-@dworkin1986] describes the process of legal reasoning with a m
 >
 > @dworkin1986 [pp. 229]
 
-Central to Dworkin's account of deciding hard cases is the idea of principle-based argumentation. In short, judges decide hard cases by appealing to broad *principles* (as opposed to narrow *rules).* An example of the this kind of principle-based argumentation described by Dworkin can be applied to the general idea that precedents should be *binding,* or that precedents have a sort of "gravitational force". This is itself known as the "principle of *stare decisis".* The argument rests on two other principles: *legal certainty* (law should be predictable in its enforcement) and *fairness* (treating like cases alike). Thus, these three principles should co-occur regularly (see Figure \@ref(fig:triad-p)).
+Central to Dworkin's account of deciding hard cases is the idea of principle-based argumentation. In short, judges decide hard cases by appealing to broad *principles* (as opposed to narrow *rules).* An example of this kind of principle-based argumentation described by Dworkin can be applied to the general idea that precedents should be *binding,* or that precedents have a sort of "gravitational force". This is itself known as the "principle of *stare decisis".* The argument rests on two other principles: *legal certainty* (law should be predictable in its enforcement) and *fairness* (treating like cases alike). Thus, these three principles should co-occur regularly (see Figure \@ref(fig:triad-p)).
 
-```{r triad-p, out.width="60%", fig.cap = "Co-occurence of principles in support of precedent's \"gravitational force\". Note that in Colombian jurisprudence the notion of \"fairness\" is denoted by the word \"equality\" which creates some ambiguity when judges use the same word in different contexts to refer to \"substantive\" or \"formal\" equality."}
+```{r triad-p, out.width="60%", fig.cap = "Co-occurrence of principles in support of precedent's \"gravitational force\". Note that in Colombian jurisprudence the notion of \"fairness\" is denoted by the word \"equality\" which creates some ambiguity when judges use the same word in different contexts to refer to \"substantive\" or \"formal\" equality."}
 knitr::include_graphics("images/principle-triad.png")
 ```
 
-The CCC makes this argument explicit in several decisions, but notes that precedents are not supposed to be *too binding* because that would lead to the law's "ossification". In other words, the world changes and the law must keep track of those changes if it's to remain relevant. A rigid interpretation of precedent doesn't allow to correct past mistakes, hindering the law's ability to set itself on a "trajectory of improvement" [@stinchcombe2001]. Moreover, there's no clear framework that can unambiguously dictate whether a past decision can be considered precedent for a future case---i.e., the criteria for deciding that two cases are in fact alike is somewhat ambiguous.
+The CCC makes this argument explicit in several decisions, but notes that precedents are not supposed to be *too binding* because that would lead to the law's "ossification". In other words, the world changes and the law must keep track of those changes if it is to remain relevant. A rigid interpretation of precedent does not allow judges to correct past mistakes, hindering the law's ability to set itself on a "trajectory of improvement" [@stinchcombe2001]. Moreover, there is no clear framework that can unambiguously dictate whether a past decision can be considered precedent for a future case---i.e., the criteria for deciding that two cases are in fact alike is somewhat ambiguous.
 
-However, the existence of these abstract principles means that judges do not have full discretion over the cases for which there is no clear precedent. They are bound to argue their decision by appealing to existing legal principles, even if they are motivated by "external" interests. In other words, the solution to a "hard case" must be found within the growing corpus of legal precedent.
+However, the existence of these abstract principles means that judges do not have full discretion over the cases for which there is no clear precedent. They are bound to argue their decision by appealing to existing legal principles, even if they are motivated by external interests. In other words, the solution to a "hard case" must be found within the growing corpus of legal precedent.
 
 This article is a first attempt to integrate insights from both legal theory and research on citation networks in science and technology. In particular, I'm attempting to combine the literature on "hard cases" and legal reasoning with the literature on "recombinant innovation." Following this line of reasoning, I'll also use the cumulative citation count as an index of innovation because it presumably captures the extent to which judges find a legal argument to be useful in deciding future cases.
 
 ## Data
 
-I collected a corpus of over `r scales::comma(nrow(metadata))` decisions made by the Colombian Constitutional Court (CCC) during the `r paste(range(metadata$year), collapse = "-")` period. The documents are unstructured pieces of text, but they are sufficiently standardized so that it's relatively straightforward to extract citations to past cases[^2].
+I collected a corpus of over `r scales::comma(nrow(metadata))` decisions made by the Colombian Constitutional Court (CCC) during the `r paste(range(metadata$year), collapse = "-")` period. The documents are unstructured pieces of text, but they are sufficiently standardized so that it is relatively straightforward to extract citations to past cases.[^2]
 
 [^2]: The raw data is available in a public repository: <https://github.com/acastroaraujo/ccc_datos>
 
 Colombia changed its Constitution in 1991, which means that the CCC had to start almost from scratch following that year. Since then, each judicial decision made by the CCC has been assigned a standardized name (e.g., `C-776-03`, `T-025-04`, `SU-1184-01`).
 
-Each prefix carries a particular meaning:
-
--   **C**: refers to the cases in which the CCC decides whether a law, rule, administrative decision is compatible with constitutional norms. This is also known as *judicial review.*
-
--   **T**: refers to "tutela", which is an individual complaint mechanism or special writ for the protection of fundamental rights. These "tutelas" can be filed with little formal requirements by any citizen before any ordinary judge and they may eventually reach the CCC.
-
-    > "The Tutela gives every person the power to go before any judge in the country to request the protection of her fundamental constitutional rights whenever threatened or violated by any public authority or private power. The first-instance judge must decide in 10 days. Judges have honored this short deadline. The appeal must be decided in 20 days, a timeline loosely respected by the second-instance judge, tribunal, or court."
-    >
-    > @cepedaespinosa2019 [pp. 28]
-
-    Each year, the CCC selects approximately 2% of these cases for review, and the final decision may uphold or reverse decisions made by lower courts. A lot of these cases are related to healthcare.
-
--   **SU**: refers to decisions in which the Court has decided to compile several `T` cases. They're a sort of legally binding "Annual Reviews" for the judicial system in Colombia.
-
-Together, these decisions form a complex citation network with nearly `r scales::comma(nrow(el))` ties among them.
-
-Note that this dataset only takes into consideration one single aspect of the "inside" of constitutional decision-making, ignoring links to different domestic laws, international legal standards, or the constitution itself. This doesn't mean that "real world facts" don't matter, it just means that they must be fitted into a pre-existing legal framework first. Judges regularly take problems and filter out all kinds of "irrelevant" information in order to form an image that can later be embedded in a classification system.
+Each prefix carries a particular meaning: "C" refers to the cases in which the CCC decides whether a law, rule, administrative decision is compatible with constitutional norms---also known as *judicial review. "*T" refers to *tutela*, which is an individual complaint mechanism or special writ for the protection of fundamental rights. These tutelas give people the power to to before any ordinary judge and request the protection of their "fundamental constitutional rights" whenever they are perceived to be threatened [@cepedaespinosa2019, pp. 28]. Each year, the CCC selects approximately 2% of these cases for review, and the final decision may uphold or reverse decisions made by lower courts. A lot of these cases are related to healthcare. Finally, "SU" refers to decisions in which the Court has decided to compile several `T` cases. They're a sort of legally binding "Annual Reviews" for the judicial system in Colombia. Together, these decisions form a complex citation network with nearly `r scales::comma(nrow(el))` ties among them.
 
 Figure \@ref(fig:num-cases) shows the number of cases in this dataset, broken down by year and type. The CCC is very prolific, averaging around 898 decisions per year; in comparison, the Supreme Court of the United States issues between 100 and 150 decisions per year.
 
@@ -187,9 +193,9 @@ figure1 + theme_custom() +
   labs(title = NULL, subtitle = NULL, caption = NULL)
 ```
 
-Note that there seems to be an inverse relation between the number of `T` and `SU` decisions, which makes sense because the whole purpose of `SU` decisions is to consolidate the arguments established by `T` decisions and thus the judges might prioritize one type over the other at different times. The appendix contains a more detailed description of cross-type citations, but it's worth noting that `T` and `SU` decisions are in fact intimately linked: 67% of the outward citations in `SU` decisions target past `T` decisions and that 84% of the inward citations in `SU` decisions come from future `T` decisions.
+Note that there seems to be an inverse relation between the number of `T` and `SU` decisions, which makes sense because the whole purpose of `SU` decisions is to consolidate the arguments established by `T` decisions and thus the judges might prioritize one type over the other at different times. The appendix contains a more detailed description of cross-type citations, but it is worth noting that `T` and `SU` decisions are in fact intimately linked: 67% of the outward citations in `SU` decisions target past `T` decisions and that 84% of the inward citations in `SU` decisions come from future `T` decisions.
 
-Figure \@ref(fig:inward-outward) shows the average number of inward citations (in-degree) and outward-citations (out-degree) broken down by year and type. Note that, in average, the decisions written during 1992 tend to be significantly more cited that the ones written in other years, giving them some sort of "first-movers advantage" over the others. Unsurprisingly, the most innovative thing of any kind is the first of its kind.
+Figure \@ref(fig:inward-outward) shows the average number of inward citations (in-degree) and outward-citations (out-degree) broken down by year and type. Note that, on average, the decisions written during 1992 tend to be significantly more cited that the ones written in other years, giving them some sort of "first-movers advantage" over the others. Unsurprisingly, the most innovative thing of any kind is the first of its kind.
 
 ```{r inward-outward, fig.cap="Average inward citations (in-degree) and outward citations (out-degree) over time. The y-axes vary by type of decision. In general, SU decisions receive more citations than the other types."}
 figure2 + theme_custom() ## in- and out-citations by type
@@ -203,7 +209,7 @@ Finally, `r scales::percent(mean(metadata$indegree == 0), accuracy = 0.01)` of t
 
 In order to understand how test the two hypothesis described above, I compare a variety of regression models to a baseline model that predicts the *cumulative citation count* (in-degree) associated with each decision by taking into account *time*, *type* (`C`, `SU`, `T`), *topic*, and *outward-citations* (out-degree). Then I proceed to expand this baseline model with measurements related to $H_1$ (principle-based argumentation) and $H_2$ (search for long-forgotten cases). Finally, I compare the predictive accuracy of these models using leave-one-out cross-validation (LOO-CV), an increasingly popular metric for comparing the relative out-of-sample predictive performance of Bayesian models [@gelman2020, pp. 172-8; @mcelreath2020, pp. 217].
 
-The baseline model is a standard negative binomial regression used for modeling count data that's over-dispersed [@gelman2020, pp. 266-8]. The linear predictor for this baseline model is specified as follows:
+The baseline model is a standard negative binomial regression used for modeling count data that is over-dispersed [@gelman2020, pp. 266-8]. The linear predictor for this baseline model is specified as follows:
 
 $$
 \log(\text{indegree}) = \alpha_0  + \underbrace{\alpha_1 \text{type}_\text{SU} + \alpha_2 \text{type}_\text{T}}_\text{indicator variables} + 
@@ -213,7 +219,7 @@ $$
 \underbrace{\log(\text{age}_i)}_{\text{Offset}}
 $$
 
-The "topic-cluster" variable is described in further detail in the Appendix. In short, some topics might be more highly cited than others (e.g., health care, social security) and thus it's necessary to include them in the regression as fixed-effects. The topics were created by using hierarchical clustering on the actual combination of words contained in each decision.
+The "topic-cluster" variable is described in further detail in the Appendix. In short, some topics might be more highly cited than others (e.g., health care, social security) and thus it is necessary to include them in the regression as fixed-effects. The topics were created by using hierarchical clustering on the actual combination of words contained in each decision.
 
 The next two sections describe how I created the measurements related to $H_1$ and $H_2$.
 
@@ -251,28 +257,28 @@ Intuitively, typical pairings tend to occur *within* clusters, whereas atypical 
 figure6 + labs(subtitle = "An example of principle-based argumentation")
 ```
 
-My operationalization of "principle based-argumentation" for this particular decision looks at the ${18 \choose 2} = 153$ possible parings and separates them into three separate variables: (1) "Typical" records the number of typical parings---i.e., summing the number of edges on the left-panel ($30$); (2) "Atypical"records the number of atypical parings---i.e., summing the number of edges on the right-panel ($35$); and (3) "Other" records the number of parings that are neither typical or atypical---i.e., $153 - 30 - 35 = 80$.
+My operationalization of "principle based-argumentation" for this particular decision looks at the ${18 \choose 2} = 153$ possible parings and separates them into three separate variables: (a) "Typical" records the number of typical parings---i.e., summing the number of edges on the left-panel ($30$); (b) "Atypical"records the number of atypical parings---i.e., summing the number of edges on the right-panel ($35$); and (c) "Other" records the number of parings that are neither typical or atypical---i.e., $153 - 30 - 35 = 80$.
 
 I do this for every single case in the network.
 
 ### $H_2$ Search for long-forgotten decisions
 
-In order to measure the motivated search for long-forgotten decisions I looked at the references contained in each decision and counted the number of days that had passed since each of these references was cited elsewhere. I then proceeded to count the number of "long-forgotten" references by counting how many of them lied above a year-specific threshold (i.e., the 99^th^ percentile of the distribution of days).
+In order to measure the motivated search for long-forgotten decisions I looked at the references contained in each decision and counted the number of days that had passed since each of these references was cited elsewhere. I then proceeded to count the number of "long-forgotten" references by counting how many of them occurred above a year-specific threshold (i.e., the 99^th^ percentile of the distribution of days).
 
 Figure \@ref(fig:adum-three-cases) looks at three different cases and shows the number of days since each of these references was cited on the y-axis. For example, when case `C-370-06` was decided roughly 1,500 days had passed since decisions `T-226-95` and `C-283-95` were cited elsewhere.
 
-```{r adum-three-cases, out.width="80%", fig.cap="This graphs looks at the reference contained in three separate cases. From left to right, the measurement for \"adumbration\" is 4, 1, and 0 respectively."}
+```{r adum-three-cases, out.width="80%", fig.cap="This graph looks at the reference contained in three separate cases. From left to right, the measurement for \"adumbration\" is 4, 1, and 0 respectively."}
 figure4 + labs(
   title = "Search for long-forgotten decisions in three cases",
   subtitle = NULL
 )
 ```
 
-This measurement is henceforth labelled "adumbration" but it should be noted that it's not a faithful representation of Merton's [-@merton1968] original concept. A more accurate measure of this concept would allow for the novel reinterpretation of salient precedents (hence, *not long*-*forgotten*). These cases contain complex arguments and sometimes judges include incidental remarks that are not binding (also known as *obiter dictum*) but that later judges might find useful. Future research should explore how to operationalize these ideas better.
+This measurement is henceforth labelled "adumbration" but it should be noted that it is not a faithful representation of Merton's [-@merton1968] original concept. A more accurate measure of this concept would allow for the novel reinterpretation of salient precedents (hence, *not long*-*forgotten*). These cases contain complex arguments and sometimes judges include incidental remarks that are not binding (also known as *obiter dictum*) but that later judges might find useful. Future research should explore how to operationalize these ideas better.
 
 ## Results
 
-Table \@ref(tab:elpddiff) contains the model comparisons using the LOO-CV metric. Here, ELPD stands for *expected log predictive density* which acts as a measure of model fit based on adding together the log scores---i.e., the logarithm of the probability or density of the observed data, given predictors included in the model [@gelman2020, pp. 174-178]. In short, higher values of ELPD means that the model fits the data better. The second column contains the variables that were added to the baseline, the third column compares the difference in ELPDs relative to the best performing model (the model with the highest ELDP). Finally, this approach generates standard errors for the differences in ELPDs, allowing us to be more cautious when comparing different models---as opposed to simply declaring one model to be "the winner" on the basis of a point estimate. These standard errors are included in the fourth column.
+Table \@ref(tab:elpddiff) contains the model comparisons using the LOO-CV metric. Here, the *expected log predictive density* (ELPD) acts as a measure of model fit based on adding together the log scores---i.e., the logarithm of the probability or density of the observed data, given predictors included in the model [@gelman2020, pp. 174-178]. In short, higher values of ELPD means that the model fits the data better. The second column contains the variables that were added to the baseline, the third column compares the difference in ELPDs relative to the best performing model (the model with the highest ELDP). Finally, this approach generates standard errors for the differences in ELPDs, allowing us to be more cautious when comparing different models---as opposed to simply declaring one model to be "the winner" on the basis of a point estimate. These standard errors are included in the fourth column.
 
 ```{r elpddiff, out.width="80%"}
 df_description <- tibble(
@@ -291,7 +297,7 @@ loo::loo_compare(loo_out) |>
   kableExtra::kable_styling(latex_options = "hold_position")
 ```
 
-This table allows us to rule out $H_2$. Adding the measurement of "adumbration" never improves the predictive accuracy any the model such that it's more than two standard deviations away from a better fitting model. On the other hand, the measurement for "principle-based argumentation" does significantly improve the predictive accuracy of the models which suggests that there's evidence for $H_1$.
+This table allows us to rule out $H_2$. Adding the measure of "adumbration" never improves the predictive accuracy any the model such that it is more than two standard deviations away from a better fitting model. On the other hand, the measure for "principle-based argumentation" does significantly improve the predictive accuracy of the models which suggests that there is evidence for $H_1$.
 
 Figure \@ref(fig:mod-coeffplot) contains the estimated coefficients from Model C along with their 95% "credible intervals". All variables have been standardized to have a mean of zero and a standard deviation of one, such that the magnitudes are comparable to each other. Thus, engaging in principle-based argumentation is predicted to have positive effects on the number of cumulative citation counts (or in-degree), but "typicality" is slightly more important than "atypicality" (in line with the judicial field's conservative disposition).
 
@@ -303,29 +309,33 @@ Here, each coefficient is the expected difference in cumulative citation counts 
 
 ***Posterior predictive checking***
 
-The previous results don't rule out the possibility that the models are all badly misspecified. I use *graphical posterior predictive checking* [@gelman2020; @mcelreath2020] to understand where the model is fitting the data poorly. The idea with this approach is to generate data from the fitted model and compare it to the observed data. Any systematic discrepancy between the generated data (colored in light blue) and the observed data indicates potential failings of the model. Figure \@ref(fig:ppc) shows the posterior predictive check corresponding to Model C.
+The previous results do not rule out the possibility that the models are all badly misspecified. I use *graphical posterior predictive checking* [@gelman2020; @mcelreath2020] to understand where the model is fitting the data poorly. The idea with this approach is to generate data from the fitted model and compare it to the observed data. Any systematic discrepancy between the generated data (colored in light blue) and the observed data indicates potential failings of the model. Figure \@ref(fig:ppc) shows the posterior predictive check corresponding to Model C.
 
 ```{r ppc, out.width="80%", fig.cap="Posterior predictive check comparing density plot of cumulative citation counts (dark line) to 500 predictive replications (light blue lines). The $x$-axis is on the log(count + 1) scale to better show the whole range of he data. The discrepancies indicate where the model shows lack of fit."}
 mod8_ppc_plots + theme_custom()
 ```
 
-In short, the model overestimates the number of zeroes, underestimates the number of cases that have received between 2 and 20 citations, and overestimates the number of between 30 and 90. Future iterations of this article will explore better generative models that fit the data better (e.g., incorporating a hierarchical structure) and improving the ways I'm operationalizing both "principle-based argumentation" and "adumbration".
+In short, the model overestimates the number of zeroes, underestimates the number of cases that have received between 2 and 20 citations, and overestimates the number of between 30 and 90. Future iterations of this article will explore better generative models that fit the data better (e.g., incorporating a hierarchical structure) and improve the ways I am operationalizing both "principle-based argumentation" and "adumbration".
 
 ## Discussion
 
-This article is a first attempt at integrating research from science and technology and legal scholarship to understand innovation in constitutional decision-making. I tested two hypotheses: a decision's cumulative citation count will be predicted by the extent of principle-based argumentation and ($H_1$) the motivated search for long-forgotten precedents ($H_2$). I found evidence for $H_1$ but no evidence $H_2$.
+This article is a first attempt at integrating research from science and technology and legal scholarship to understand innovation in constitutional decision-making. I tested two hypotheses: a decision's cumulative citation count will be predicted by the extent of principle-based argumentation and ($H_1$) the motivated search for long-forgotten precedents ($H_2$). I found evidence for $H_1$ but no evidence for $H_2$.
 
-However, I caution against taking the estimates associated with the "typicality" and "atypicality" of principles/rights used in constructing legal arguments. "Hard cases" should be understood as originating in the "outside world"---a peace process, an economic recession, a global pandemic---and the work judges do should be understood as an attempt to adapt the court's current jurisprudence in order to keep track of the real world. What's particular to constitutional decision-making is that it works as a sort "moving classification system" [@levi2013, pp. 4], it has the potential of changing with every new decision. It's important to move past the "outside"/"inside" opposition and recognize that both endogenous and exogenous drivers of innovation form a sort of "duality". Hard cases (actually *all* *cases*) come directly from the "outside" world. But decisions cannot be reduced to a simple consequence (or reflection) of "external" dynamics.
+However, I caution against taking the estimates associated with the "typicality" and "atypicality" of principles/rights used in constructing legal arguments. "Hard cases" should be understood as originating in the "outside world"---a peace process, an economic recession, a global pandemic---and the work judges do should be understood as an attempt to adapt the court's current jurisprudence in order to keep track of the real world. What's particular to constitutional decision-making is that it works as a sort "moving classification system" [@levi2013, pp. 4], it has the potential of changing with every new decision. it is important to move past the "outside"/"inside" opposition and recognize that both endogenous and exogenous drivers of innovation form a sort of "duality". Hard cases (actually *all* *cases*) come directly from the "outside" world. But decisions cannot be reduced to a simple consequence (or reflection) of "external" dynamics.
 
 The approach I took has obvious drawbacks. Notably, I only examine the effects of constitutional decision-making on the CCC's own citation practices---i.e., the way in which past decisions affect future decisions. I only analyzed at each decision's *cumulative citation count*. To the extent that creative legal arguments are deemed adequate and useful in solving hard cases, they will continue to be cited in future decisions. But these decisions have various more important effects examine the multiple effects that these decisions can have on the "outside world." For example, @rodríguez2015 describe the effects of a single decision (`T-025-04)` such as the direct alteration of state policy on the attention towards internally displaced citizens, opportunities for coalition building among social activists, and framing effects in public opinion.
 
-Future iterations of this project will attempt to find a better model that accounts for current discrepancies in the data (e.g., hierarchical models, time-series models). Maybe the models don't fit the data well because they don't account for any external dynamics?
+Future iterations of this project will attempt to find a better model that accounts for current discrepancies in the data (e.g., hierarchical models, time-series models). Maybe the models do not fit the data well because they do not account for any external dynamics?
+
+Brought from above:
+
+Note that this dataset only takes into consideration one single aspect of the "inside" of constitutional decision-making, ignoring links to different domestic laws, international legal standards, or the constitution itself. This does not mean that "real world facts" do not matter, it just means that they must be fitted into a pre-existing legal framework first. Judges regularly take problems and filter out all kinds of "irrelevant" information in order to form an image that can later be embedded in a classification system.
 
 ## Appendix
 
 ### @funk2017
 
-@funk2017 are interested in measuring change at a level of granularity that's intermediate between "paradigm shifts" and "knowledge encapsulation". Their index is aimed at capturing "degrees of consolidation and destabilization ranging from large-scale transformations to smaller-scale, incremental shifts" [@funk2017, pp. 793]. Unfortunately, their proposed index assumes that a new node is *either* disruptive *or* consolidating to a certain degree. They don't consider the possibility that a new node exhibits *both* effects for different subsets of future nodes [@funk2017, pp. 813], a phenomena that may occur with long and complex documents subject to multiple interpretations. \@ref(fig:cd-index) shows the disruption index proposed by @funk2017 for the decisions in this dataset and shows that these decisions are almost never quite disruptive, but they're not very consolidating either.
+@funk2017 are interested in measuring change at a level of granularity that's intermediate between "paradigm shifts" and "knowledge encapsulation". Their index is aimed at capturing "degrees of consolidation and destabilization ranging from large-scale transformations to smaller-scale, incremental shifts" [@funk2017, pp. 793]. Unfortunately, their proposed index assumes that a new node is *either* disruptive *or* consolidating to a certain degree. They do not consider the possibility that a new node exhibits *both* effects for different subsets of future nodes [@funk2017, pp. 813], a phenomena that may occur with long and complex documents subject to multiple interpretations. \@ref(fig:cd-index) shows the disruption index proposed by @funk2017 for the decisions in this dataset and shows that these decisions are almost never quite disruptive, but they're not very consolidating either.
 
 ```{r cd-index}
 appendix1 + theme_custom() ## cd index

@@ -103,22 +103,6 @@ source("second-year-paper-data-plots.R")
 source("viz_cemetary.R")
 ```
 
-::: {#.todolist}
--   Read the stuff by Diego Medina.
-
--   Read the stuff by Stinchcombe again.
-
--   Follow Martin's more substantive suggestions.
-
-From Nico:
-
--   Creo que la parte de realism/formalism queda un poco flotando al principio - podría ser mas claro en que forma ese debate reta lo que estas haciendo o por que es relevante.
-
--   La conclusion que hay evidencia de que el balance de typical y atypical conlleva a mas citas requiere que haya artículos que usen ambas. Si existen? O sea, la afirmacion pierde validez si hay artículos que solo usan unos estilos de citación - mostly typical // mostly atypical.
-
-    This means that I'll have to expand on the descriptive stuff. Maybe signal out some super precedents. What makes them "super"? Do the results help inform this?
-:::
-
 ## Introduction
 
 This article attempts to understand creativity and innovation in an environment that actively *discourages* novelty: constitutional decision-making in higher courts. More specifically, I use insights from the study of citation networks in science and technology to analyze the network of citations embedded in all decisions made by the Colombian Constitutional Court (CCC) for the `r paste(range(metadata$year), collapse = "-")` period.
@@ -151,8 +135,7 @@ Another metaphor involves *a network of citations filled with long-range connect
 
 A third metaphor is *a network of citations that is subjected to episodic moments of disruption and consolidation.* This type of network arises through the mechanism of "creative disruption" [@mcmahan2021; @funk2017]. The idea is that some pieces of creative work can be seen as *intervening* on the whole network, drawing attention away from some nodes and promoting others to the status of exemplars. @funk2017 developed an index that can be used to measure whether a new node *disrupts* the way other nodes are being cited (i.e., a break with the past) or whether it *consolidates* them (i.e., increases the coherence of some domain). The intuition is that a disruptive node will decrease the citations of predecessors because this new node (e.g., a technology, an idea, a decision) indicates a break with past ways of thinking; in contrast, a consolidating node should be cited together with its predecessors.
 
-Some of the literature invoking these metaphors emphasizes the concept of *recombinant
-innovation.* The argument is that "new" ideas are not usually "out there" waiting to be discovered, but that they are usually created by reconfiguring existing resources in different ways. Research on scientific practice has focused on the novel juxtaposition of scientific ideas as a source of innovation [e.g., @leahey2014; @uzzi2013]. This literature has taken the *cumulative citation count* as an indicator of innovation because presumably it captures "the extent to which the work was useful to---and valued by---other scholars" [@leahey2014, pp. 347]. Following this line of reasoning, research in the sociology of science typically focuses on the *tension* between "tradition" and "innovation" [e.g., @foster2015]. Thus, for the purposes of innovation, there should be some optimal mixture of novel and conventional elements; "novelty and conventionality are not opposing factors in the production of science; rather, papers with an injection of novelty into an otherwise exceptionally familiar mass of prior work are unusually likely to have high impact" [@uzzi2013, pp. 470].
+Some of the literature invoking these metaphors emphasizes the concept of *recombinant innovation.* The argument is that "new" ideas are not usually "out there" waiting to be discovered, but that they are usually created by reconfiguring existing resources in different ways. Research on scientific practice has focused on the novel juxtaposition of scientific ideas as a source of innovation [e.g., @leahey2014; @uzzi2013]. This literature has taken the *cumulative citation count* as an indicator of innovation because presumably it captures "the extent to which the work was useful to---and valued by---other scholars" [@leahey2014, pp. 347]. Following this line of reasoning, research in the sociology of science typically focuses on the *tension* between "tradition" and "innovation" [e.g., @foster2015]. Thus, for the purposes of innovation, there should be some optimal mixture of novel and conventional elements; "novelty and conventionality are not opposing factors in the production of science; rather, papers with an injection of novelty into an otherwise exceptionally familiar mass of prior work are unusually likely to have high impact" [@uzzi2013, pp. 470].
 
 ### Hard cases and innovation
 
@@ -305,7 +288,7 @@ Figure \@ref(fig:mod-coeffplot) contains the estimated coefficients from Model C
 mod_coeffplot + theme_custom() + labs(title = NULL, subtitle = NULL)
 ```
 
-Here, each coefficient is the expected difference in cumulative citation counts (on the logarithmic scale) when the number of principles is increased by one standard deviation. Thus, an increase of one standard deviation in the number of "typical parings" (or 4.6 atypical pairings) is associated---all else equal---with a 26% increase in cumulative citation counts ($e^{0.23} = 1.2586$); an increase of one standard deviation in the number of "atypical pairings" (or 3.4 typical parings) is associated with a 20% increase in cumulative citation counts ($e^{0.18} = 1.1972$); and an increase of one standard deviation in the number of pairings that are neither typical nor atypical (or 60.7 pairings) is associated with a 6% increase in cumulative citation counts ($e^{0.06} = 1.0618$). Finally, in line with prior research [e.g., @uzzi2013; @foster2015], there's evidence for an optimal mixture of novel and conventional elements in predicting innovation. An increase of one standard deviation in the number of both typical and atypical pairings is associated with a 50% increase in cumulative citation counts ($e^{0.18}\times e^{0.23} = 1.5068$).
+Here, each coefficient is the expected difference in cumulative citation counts (on the logarithmic scale) when the number of principles is increased by one standard deviation. Thus, an increase of one standard deviation in the number of "typical parings" (or 4.6 atypical pairings) is associated---all else equal---with a 26% increase in cumulative citation counts ($e^{0.23} = 1.2586$); an increase of one standard deviation in the number of "atypical pairings" (or 3.4 typical parings) is associated with a 20% increase in cumulative citation counts ($e^{0.18} = 1.1972$); and an increase of one standard deviation in the number of pairings that are neither typical nor atypical (or 60.7 pairings) is associated with a 6% increase in cumulative citation counts ($e^{0.06} = 1.0618$). Finally, in line with prior research [e.g., @uzzi2013; @foster2015], there's evidence for an optimal mixture of novel and conventional elements in predicting innovation. An increase of one standard deviation in the number of both typical and atypical pairings is associated with a 49% increase in cumulative citation counts ($e^{0.18}\times e^{0.23} \times e^{-0.01} = 1.49182$).
 
 ***Posterior predictive checking***
 
@@ -327,9 +310,27 @@ The approach I took has obvious drawbacks. Notably, I only examine the effects o
 
 Future iterations of this project will attempt to find a better model that accounts for current discrepancies in the data (e.g., hierarchical models, time-series models). Maybe the models do not fit the data well because they do not account for any external dynamics?
 
-Brought from above:
+::: todolist
+**To do list:**
+
+-   Read the stuff by Diego Medina.
+
+-   Read the stuff by Stinchcombe again.
+
+-   Follow Martin's more substantive suggestions.
+
+Comments from Nico:
+
+-   Creo que la parte de realism/formalism queda un poco flotando al principio - podría ser mas claro en que forma ese debate reta lo que estas haciendo o por que es relevante.
+
+-   La conclusion que hay evidencia de que el balance de typical y atypical conlleva a mas citas requiere que haya artículos que usen ambas. Si existen? O sea, la afirmacion pierde validez si hay artículos que solo usan unos estilos de citación - mostly typical // mostly atypical.
+
+    This means that I'll have to expand on the descriptive stuff. Maybe signal out some super precedents. What makes them "super"? Do the results help inform this?
+
+*Brought from above:*
 
 Note that this dataset only takes into consideration one single aspect of the "inside" of constitutional decision-making, ignoring links to different domestic laws, international legal standards, or the constitution itself. This does not mean that "real world facts" do not matter, it just means that they must be fitted into a pre-existing legal framework first. Judges regularly take problems and filter out all kinds of "irrelevant" information in order to form an image that can later be embedded in a classification system.
+:::
 
 ## Appendix
 
